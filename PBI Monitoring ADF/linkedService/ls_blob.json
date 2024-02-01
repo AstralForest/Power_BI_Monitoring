@@ -1,0 +1,17 @@
+{
+	"name": "ls_blob",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobStorage",
+		"typeProperties": {
+			"connectionString": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "ls_kv",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "secret-pbimon-storage-connection-string"
+			}
+		}
+	}
+}

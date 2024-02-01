@@ -1,0 +1,11 @@
+{
+	"name": "ls_kv",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://kv-af-pbimon-0.vault.azure.net/"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/linkedservices"
+}
