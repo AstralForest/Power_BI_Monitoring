@@ -1,0 +1,9 @@
+{
+	"name": "adf-client-pbimon-instance",
+	"location": "northeurope",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "",
+		"tenantId": ""
+	}
+}
