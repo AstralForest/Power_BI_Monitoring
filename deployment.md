@@ -56,7 +56,7 @@ Open folder 'PBI Monitoring Infrastructure' -> right click on file serverless.pa
 3) The next step involves loading the database from the bacpac file (file format for databases).
 - In terminal paste following command
   
-**az storage blob upload --account-name stfunc<client_name>pbimon&lt;instance&gt; --container-name bacpac --name database --type block --file .\db-pbimon.bacpac --auth-mode login** fill in client_name and instance
+**az storage blob upload --account-name stfunc<client_name>pbimon&lt;instance&gt; --container-name bacpac --name database --type block --file .\database.bacpac --auth-mode login** fill in client_name and instance
 
 - In your Resource Group open SQL Server resource (it will begin with server) -> 'Import database' (upper option menu) -> 'Select backup' -> Choose storage account beginnig with 'stfunc' -> 'bacpac' -> 'Select' -> database -> 'Database name' (enter: db-<client_name>-pbimon-&lt;instance&gt;) -> 'Authentication type' SQL Server'-> 'Server admin login' login_server_pbimon -> 'Password' (in another browser page go to your Resource Group Key Vault -> 'Secrets' -> 'secret-pbimon-server' -> 'Current Version' -> 'Copy secret value' -> paste) -> 'Pricing tier' allows you to configure your Database depending on your organization scale and needs (for most case we recommend Standard S0) -> 'OK'
 
