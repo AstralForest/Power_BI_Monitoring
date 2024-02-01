@@ -8,7 +8,7 @@ While working with clients, we encountered growing need for monitoring and manag
   
 The end result is a Power BI report enabling you to monitor mentioned metrics:
 
-**Dodam potem!!!**
+![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/484bcea1-6651-4e78-b755-14ba44fcfcbf)
 
 **Please note that this is open-source version which does not include all mentioned above functionalities. In order to get the full solution premium, please contact: info@astralforest.com.**
 
