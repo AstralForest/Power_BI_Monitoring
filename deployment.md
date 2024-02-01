@@ -48,10 +48,11 @@ Open folder 'PBI Monitoring Infrastructure' -> right click on file serverless.pa
   c) **az deployment group create --resource-group <new_resource_group_name> --template-file .\serverless.bicep --parameters .\serverless.parameters.json --subscription <subscription_id>** fill in your resource group name (for example 'pbimon_myorg') and subcription id
 
 - Open Azure Portal -> Resource Groups -> your newly created group -> 'Deployments' -> serverless -> after few minutes check whether deployment was successful
-- Don't close the terminal
 
 ![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/901daafb-e1bc-4c93-9a13-350079cade70)
 
+- Don't close the terminal
+  
 3) The next step involves loading the database from the dacpac file (file format for databases).
 - In terminal paste following command
   
