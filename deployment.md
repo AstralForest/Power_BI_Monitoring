@@ -53,7 +53,7 @@ Open folder 'PBI Monitoring Infrastructure' -> right click on file serverless.pa
 
 - Don't close the terminal
   
-3) The next step involves loading the database from the dacpac file (file format for databases).
+3) The next step involves loading the database from the bacpac file (file format for databases).
 - In terminal paste following command
   
 **az storage blob upload --account-name stfunc<client_name>pbimon&lt;instance&gt; --container-name bacpac --name database --type block --file .\db-pbimon.bacpac --auth-mode login** fill in client_name and instance
