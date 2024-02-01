@@ -10,7 +10,7 @@
 1) First step is to create App Registration (technical user, an app representation that will be making API requests) with access to both Graph and Power BI API.
 - Open [Azure portal](https://portal.azure.com/) -> type 'app registrations' in search panel -> select 'New registration' -> fill registration name (for example 'AR_PBI_Monitoring') -> Select 'Accounts in this organizational directory only (Single tenant)' -> Click 'Register'
 - In your newly create App Registration select 'API permissions' (left-side menu) -> 'Add a permission' -> 'Microsoft Graph' -> 'Application permissions' -> type 'Group.Read.All' and 'User.Read.All' select them both -> 'Add permissions'
-- Go to 'Certificates & secrets' -> 'New client secret' -> Copy newly created secret 
+- Go to 'Certificates & secrets' -> 'New client secret' -> Copy newly created secret and save it somewhere
   
   If you receive the same Status as in the screenshot below ask your Azure Adminstrator to approve consent for the application.
   
