@@ -27,7 +27,7 @@ Database consists of 4 schemas:
 - Gold: Final stage with fully cleansed and report-oriented data ready for analysis and reporting.
 - Config: Metadata schema used for ELT process.
 
-Deployment instructions for the solution, along with requirements, are provided in the [deployment.md](https://github.com/MJelowickiAF/PowerBI_Monitoring/blob/main/deployment.md) file. For the demo purposes, we create all necessary resources from scratch, but the solution is highly customizable and can be adapted to already existing resources.
+Deployment instructions for the solution, along with requirements, are provided in the [deployment.md](https://github.com/AstralForest/Power_BI_Monitoring/blob/master/deployment.md) file. For the demo purposes, we create all necessary resources from scratch, but the solution is highly customizable and can be adapted to already existing resources.
 
 ## Solution Design
 The solution architecture consists of three main areas:
