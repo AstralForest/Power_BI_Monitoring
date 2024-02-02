@@ -41,7 +41,8 @@ Each of these areas is independent and modular, allowing for the implementation 
 ![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/884fd5f5-ec37-4431-a1ff-0ff160a199fc)
 
 ## Considerations
-The open-source solution does not include modules ensuring network security (Function App can be accessed by anyone possesing function key). For network security configuration, consider the premium version.
+- The open-source solution does not include modules ensuring network security (Function App can be accessed by anyone possesing function key). For network security configuration, consider the premium version.
+- As per Microsoft documentation - some metrics will expose names, email addresses of useras who are accessing Power BI Service.
 
 ## Contact
 If you have any questions or you are interested in the premium version that encompasses all functionalities, such as:
