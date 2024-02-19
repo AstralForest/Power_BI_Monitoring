@@ -52,5 +52,6 @@ If you have any questions or you are interested in the premium version that enco
 - Monitoring of assignment and usage of Power BI licenses
 - And much more...
 
+Additionally, we offer 2-3 hours of complimentary consultation in case of issues for deployment of the open-source version.
 Contact us at https://astralforest.com/  or michal.debski@astralforest.com
 
