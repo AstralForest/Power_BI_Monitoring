@@ -10,7 +10,7 @@ The end result is a Power BI report enabling you to monitor mentioned metrics:
 
 ![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/484bcea1-6651-4e78-b755-14ba44fcfcbf)
 
-**Please note that this is open-source version which does not include all mentioned above functionalities. In order to get the full solution premium, please contact: info@astralforest.com.**
+**Please note that this is open-source version which does not include all mentioned above functionalities. In order to get the full solution, please contact: info@astralforest.com.**
 
 ## Project Description
 Project leverages Power BI and Graph API queries to fetch data from Power BI Service. APIs are interfaces that allow programmatically access and interact with data from different platforms (in this case - Azure, Power BI Portal). Subsequently, the data is loaded to Azure SQL Database through Azure Data Factory — a cloud-based service designed for orchestrating and automating the data movement from different sources to various destinations. In the Azure SQL Database, the data undergoes processing and transformation into Facts and Dimensions where it serves as the foundation for generating a comprehensive Power BI Monitoring report.
