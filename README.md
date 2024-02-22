@@ -46,12 +46,15 @@ Each of these areas is independent and modular, allowing for the implementation 
 
 ## Contact
 If you have any questions or you are interested in the premium version that encompasses all functionalities, such as:
+- Azure Data Factory based processing and orchiestration (no Function App)
+- 25 more SQL objects
+- Access to latest features
 - Professional setup and configuration tailored to your individual needs
-- High level of network security
-- List of most active users and reports
-- Monitoring of assignment and usage of Power BI licenses
+- Recommendations about your current Power BI design
+- Network security
 - And much more...
 
-Additionally, we offer 2-3 hours of complimentary consultation in case of issues for deployment of the open-source version.
 Contact us at https://astralforest.com/  or michal.debski@astralforest.com
+
+Additionally, we offer 2-3 hours of complimentary consultation in case of issues for deployment of the open-source version.
 
