@@ -104,6 +104,6 @@ Open folder 'PBI Monitoring Infrastructure' -> right click on file serverless.pa
 - Press "Select" button
 - After s while you will receive information about the successful publication of the report
 ![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/161041983/610967b4-626e-4159-80b6-be190ccf9824)
--Now ypu can see published report in PBI Service
+- Now you can see published report in PBI Service
 ![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/161041983/d91597d3-9bb2-4135-88a6-01b345637c3b)
 
