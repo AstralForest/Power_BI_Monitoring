@@ -1,10 +1,21 @@
 ## Project Origin
 While working with clients, we encountered growing need for monitoring and managing Power BI Service. To address this need, we have developed a comprehensive solution that covers the following aspects:
-- Listing most active users and reports
-- Monitoring the assignment and usage of Power BI licenses
+- Listing most active users and reports across all Power BI Tenant
 - Tracking new reports deployment
-- Maintaining order in Power BI Service by identifying unused reports
+- Maintaining order in Power BI Service by identifying unused or rarely used reports -> potential archival 
 - Monitoring number of users and their activities
+- Listing all the users using a given report
+- Listing all the reports used by a given user
+- Identifying Business Owners of the reports
+- Usage History > 30 days
+- potentially: listing all of the dowloaded reports
+Full version: 
+- Monitoring the assignment and usage of Power BI licenses
+- Control the security of the reports and the access rights (across the tenant)
+- Control of the RLS across all semantic models
+- Control of the tenant settings
+- Object Lineage: Data Source, Semantic Model, Table, Report
+
   
 The end result is a Power BI report enabling you to monitor mentioned metrics:
 
