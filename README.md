@@ -9,6 +9,7 @@ While working with clients, we encountered growing need for monitoring and manag
 - Identifying Business Owners of the reports
 - Usage History > 30 days
 - potentially: listing all of the dowloaded reports
+  
 Full version: 
 - Monitoring the assignment and usage of Power BI licenses
 - Control the security of the reports and the access rights (across the tenant)
