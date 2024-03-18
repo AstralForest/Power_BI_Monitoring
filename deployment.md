@@ -24,7 +24,7 @@
 3) The next step is to deploy bicep template to Azure. Bicep is declarative language for creating and deploying Azure resources.
 - Download project files to your local disk -> Open project on GitHub -> 'Code' -> 'Download as Zip' -> Right click on zip file -> 'Extract all'
 Open folder 'PBI Monitoring Infrastructure' -> right click on file serverless.parameters.json -> 'Edit with Notepad' (or any other text editor) -> modify following parameters in json:
-- **instance** can be any number, default is '0' you can leave it at that (it's in order to prevent conflicts in resource names)
+- **instance** can be any number, default is '0' you can leave it at that (it's in order to prevent conflicts in resource names - it's necessary to fill this parameter)
 - **client_name** abbreviation for your project (for example - Astral Forest = af). Use only lowercase letters! Whenever in the instruction you see &lt;instance&gt; or <client_name> fill it in with these values.
 - **tenant_id** you could say it's your organization Azure ID, go to azure portal -> type 'Microsoft Entra ID' -> copy Tenant ID
 - **region_uppercase** and **region** - region where your resources will be deployed, it's recommended to leave it as it is because some functionalities may not be available in all regions. If you wish to deploy solution in a different region please check wheter required resources are available there https://azure.microsoft.com/en-us/explore/global-infrastructure/products-by-region/ 
