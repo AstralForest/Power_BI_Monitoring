@@ -1,5 +1,5 @@
 # Solution Prerequisites
-- Azure subscription (with at least contributor role)
+- Azure subscription
 - Power BI Administrator role
 - [Visual Studio Code](https://code.visualstudio.com/download) (at least community edition)
 - [GitHub account](https://github.com/join)
