@@ -51,7 +51,6 @@ The solution architecture consists of three main areas:
 Each of these areas is independent and modular, allowing for the implementation of more fitting components tailored to specific client requirements.
 
 ## Considerations
-- The open-source solution does not include modules ensuring network security (Function App can be accessed by anyone possesing function key). For network security configuration, consider the premium version.
 - As per Microsoft documentation - some metrics will expose names, email addresses of users who have access to Power BI Service.
 
 ## Contact
