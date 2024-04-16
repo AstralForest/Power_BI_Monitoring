@@ -29,9 +29,9 @@ Project leverages Power BI and Graph API queries to fetch data from Power BI Ser
 
 ![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/e7039acd-23c1-4a72-84d3-3d3e44a57f86)
 
-Function App makes API calls and processes the data, saves the output to Blob Storage from where it is copied to SQL Database
+Copy Activity makes API calls, processes the data and saves it directly to SQL Database.
 
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/89f0d420-d0f9-49f8-993e-6a7203e95f2a)
+![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/129027cf-475d-41a8-8f6e-17243db1c787)
 
 Database consists of 4 schemas:
 - Bronze: Initial stage containing unprocessed raw data.
