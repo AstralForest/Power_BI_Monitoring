@@ -41,6 +41,8 @@ Database consists of 4 schemas:
 
 Deployment instructions for the solution, along with requirements, are provided in the [deployment.md](https://github.com/AstralForest/Power_BI_Monitoring/blob/master/deployment.md) file. For the demo purposes, we create all necessary resources from scratch, but the solution is highly customizable and can be adapted to already existing resources.
 
+**Important Note!** There is also alterantive version of the soultion which uses Azure Functions for API processing (check out Azure-Functions branch). As a default we recommend using this version as it is less complicated, more secure and requires less resources.
+
 ## Solution Design
 The solution architecture consists of three main areas:
 
