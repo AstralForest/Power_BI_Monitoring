@@ -31,7 +31,7 @@ Project leverages Power BI and Graph API queries to fetch data from Power BI Ser
 
 Copy Activity makes API calls, processes the data and saves it directly to SQL Database.
 
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/129027cf-475d-41a8-8f6e-17243db1c787)
+![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/993cf4e8-f4b0-4e16-a5cb-b336e28ffd32)
 
 Database consists of 4 schemas:
 - Bronze: Initial stage containing unprocessed raw data.
