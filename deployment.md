@@ -65,9 +65,8 @@ Open folder 'PBI Monitoring Infrastructure' -> right click on file serverless.pa
 5) In this step we are going to publish Data Factory resources.
 - At Azure Portal open your resource group and your Data Factory -> 'Launch studio' -> on left menu click on toolbox ('Manage') -> 'Git configuration' -> 'Configure' -> 'Repository type' select GitHub -> 'GitHub repository owner' type your GitHub nickname -> 'Continue' -> 'Use repository link' -> 'Git repository link' (open GitHub -> Repositories -> 'PowerBI_Monitoring' -> copy and paste browser link -> 'Collaboration branch' select main -> 'Root folder' /PBI Monitoring ADF/ -> 'Apply'
 - 'Linked services' -> 'ls_kv' -> change 'Base URL' (replace client_name and instance) -> 'Save'
-- 'ls_function' -> change 'Function App URL' (replace client_name and instance) -> 'Save'
    
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/94e0c9d4-8395-4e07-9e49-cb5f32dc399d)
+![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/29d03429-0774-40ff-837f-b6ed19781f83)
 
 6) Test whether everything deployed successfully be running master pipeline
 - Click on pencil icon 'Author' -> 'Publish' (upper option menu) -> 'Pipelines' -> 'Power BI Monitoring' -> 'Power BI Monitoring Master Pipeline' -> 'Debug'
