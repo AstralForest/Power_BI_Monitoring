@@ -68,6 +68,11 @@ Open folder 'PBI Monitoring Infrastructure' -> right click on file serverless.pa
    
 ![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/29d03429-0774-40ff-837f-b6ed19781f83)
 
+- 'Global parameters' -> fill values in {} -> **token_url**; **kv_app_secret_url**; **app_client_id** (these are same values which you have filled in in step 3)
+  
+ ![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/3ef46935-7397-460e-9f56-760e3e3cea0a)
+
+
 6) Test whether everything deployed successfully be running master pipeline
 - Click on pencil icon 'Author' -> 'Publish' (upper option menu) -> 'Pipelines' -> 'Power BI Monitoring' -> 'Power BI Monitoring Master Pipeline' -> 'Debug'
 
