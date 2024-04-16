@@ -43,7 +43,7 @@ Open folder 'PBI Monitoring Infrastructure' -> right click on file serverless.pa
   
   a) **az login** -> you should be redirected to Azure login page -> log in -> close page and come back to Command Line
   
-  b) **az group create -l northeurope -n <new_resource_group_name> --subscription <subscription_id>** - fill in your resource group name and subcription id (you can find available subscriptions in Command Line after az login - choose subcription where you have at least contributor role)
+  b) **az group create -l northeurope -n <new_resource_group_name> --subscription <subscription_id>** - This command creates Resoruce Group for your solution. Fill in your Resource Group name and subcription id (you can find available subscriptions in Command Line after az login - choose subcription where you have at least contributor role)
   
   c) **az deployment group create --resource-group <new_resource_group_name> --template-file .\serverless.bicep --parameters .\serverless.parameters.json --subscription <subscription_id>** fill in your resource group name (for example 'pbimon_myorg') and subcription id
 
