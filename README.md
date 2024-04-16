@@ -27,7 +27,7 @@ The end result is a Power BI report enabling you to monitor mentioned metrics:
 ## Project Description
 Project leverages Power BI and Graph API queries to fetch data from Power BI Service. APIs are interfaces that allow programmatically access and interact with data from different platforms (in this case - Azure, Power BI Portal). Subsequently, the data is loaded to Azure SQL Database through Azure Data Factory — a cloud-based service designed for orchestrating and automating the data movement from different sources to various destinations. In the Azure SQL Database, the data undergoes processing and transformation into Facts and Dimensions where it serves as the foundation for generating a comprehensive Power BI Monitoring report.
 
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/e7039acd-23c1-4a72-84d3-3d3e44a57f86)
+![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/5468da80-8df2-4998-b0cf-42a01ee9fabe)
 
 Copy Activity makes API calls, processes the data and saves it directly to SQL Database.
 
