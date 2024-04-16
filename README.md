@@ -44,13 +44,20 @@ Deployment instructions for the solution, along with requirements, are provided 
 **There is also alternative version of the solution which uses Azure Functions for API processing (check out Azure-Functions branch). As a default we recommend using this version as it is less complicated, more secure and allows to load 30 days of history during deployment**
 
 ## Solution Design
+
 The solution architecture consists of three main areas:
 
-- **Orchestration** - the part overseeing the entire ETL process, ensuring timely processing of all tasks (Azure Data Factory)
-- **Integration** - the area responsible for data extraction (Azure Data Factory - Copy Activity)
-- **Transformation** - the section that further processes the acquired data, making it more accessible for final reporting (Azure SQL Database)
+- **Orchestration** - the part overseeing the entire ETL process, ensuring timely processing of all tasks 
+- **Integration** - the area responsible for data extraction 
+- **Transformation** - the section that further processes the acquired data, making it more accessible for final reporting 
   
 Each of these areas is independent and modular, allowing for the implementation of more fitting components tailored to specific client requirements.
+
+We developed two alternative versions of the solution. Below is quick comparison of the two of them:
+
+![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/80fd8a01-dffe-4d2b-b6f4-58204d64c067)
+
+
 
 ## Considerations
 - As per Microsoft documentation - some metrics will expose names, email addresses of users who have access to Power BI Service.
