@@ -75,8 +75,8 @@ Open folder 'PBI Monitoring Infrastructure' -> right click on file serverless.pa
 ![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/e6535342-4fd2-4533-897f-90d859023cb6)
 
 7) To use PBI Monitoring report follow belows steps:
-- Download the pbix file (from GitHub repo)
-- Open the downloaded file in Power BI Desktop
+- Download current version of the pbit file (for exmaple PBI_Monitoring_open_source_template_03_2024.pbit)
+- Open it file in Power BI Desktop
 - Fill parameters with your metadata information
 ![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/161041983/35b505cb-61f1-45ca-b360-03f798397cca)
 - Press "Load" button
@@ -84,7 +84,7 @@ Open folder 'PBI Monitoring Infrastructure' -> right click on file serverless.pa
 - Select workspace name where you want to publish the report
 ![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/161041983/cc57b4b6-834c-43b2-98c6-0b14489bb726)
 - Press "Select" button
-- After s while you will receive information about the successful publication of the report
+- After a while you will receive information about the successful publication of the report
 ![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/161041983/610967b4-626e-4159-80b6-be190ccf9824)
 - Now you can see published report in PBI Service
 ![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/161041983/d91597d3-9bb2-4135-88a6-01b345637c3b)
