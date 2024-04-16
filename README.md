@@ -53,7 +53,7 @@ Each of these areas is independent and modular, allowing for the implementation 
 
 We developed two alternative versions of the solution. Below is quick comparison between the two of them:
 
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/3a39404a-aca5-4e74-ad3b-8f22daf1d835)
+![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/cfb6484f-ed65-46b2-9979-38bea6e5b342)
 
 ## Considerations
 - As per Microsoft documentation - some metrics will expose names, email addresses of users who have access to Power BI Service.
