@@ -78,7 +78,9 @@ Open folder 'PBI Monitoring Infrastructure' -> right click on file serverless.pa
 
 ![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/34a502ea-91e0-4130-a11c-b1e369850747)
 
-7) To use PBI Monitoring report follow belows steps:
+7) Run 'Load Power BI API Activity Events 30days' pipeline from 'Deployment' folder in order to get 30 days of history from your organization.
+
+8) To use PBI Monitoring report follow belows steps:
 - Download current version of the pbit file (for exmaple PBI_Monitoring_open_source_template_03_2024.pbit)
 - Open it file in Power BI Desktop
 - Fill parameters with your metadata information
