@@ -45,12 +45,10 @@ Deployment instructions for the solution, along with requirements, are provided 
 The solution architecture consists of three main areas:
 
 - **Orchestration** - the part overseeing the entire ETL process, ensuring timely processing of all tasks (Azure Data Factory)
-- **Integration** - the area responsible for data extraction (Function App)
+- **Integration** - the area responsible for data extraction (Azure Data Factory - Copy Activity)
 - **Transformation** - the section that further processes the acquired data, making it more accessible for final reporting (Azure SQL Database)
   
 Each of these areas is independent and modular, allowing for the implementation of more fitting components tailored to specific client requirements.
-
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/884fd5f5-ec37-4431-a1ff-0ff160a199fc)
 
 ## Considerations
 - The open-source solution does not include modules ensuring network security (Function App can be accessed by anyone possesing function key). For network security configuration, consider the premium version.
