@@ -55,7 +55,6 @@ Each of these areas is independent and modular, allowing for the implementation 
 
 ## Contact
 If you have any questions or you are interested in the premium version that encompasses all functionalities, such as:
-- Azure Data Factory based processing and orchiestration (no Function App)
 - 25 more SQL objects
 - Access to latest features
 - Professional setup and configuration tailored to your individual needs
