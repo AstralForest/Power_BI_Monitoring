@@ -72,7 +72,7 @@ Open folder 'PBI Monitoring Infrastructure' -> right click on file serverless.pa
 6) Test whether everything deployed successfully be running master pipeline
 - Click on pencil icon 'Author' -> 'Publish' (upper option menu) -> 'Pipelines' -> 'Power BI Monitoring' -> 'Power BI Monitoring Master Pipeline' -> 'Debug'
 
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/e6535342-4fd2-4533-897f-90d859023cb6)
+![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/34a502ea-91e0-4130-a11c-b1e369850747)
 
 7) To use PBI Monitoring report follow belows steps:
 - Download current version of the pbit file (for exmaple PBI_Monitoring_open_source_template_03_2024.pbit)
