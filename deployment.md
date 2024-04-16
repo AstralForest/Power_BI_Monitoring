@@ -27,7 +27,7 @@ Open folder 'PBI Monitoring Infrastructure' -> right click on file serverless.pa
 - **instance** can be any number, default is '0' you can leave it at that (it's in order to prevent conflicts in resource names - it's necessary to fill this parameter)
 - **client_name** abbreviation for your project (for example - Astral Forest = af). Use only lowercase letters! Whenever in the instruction you see &lt;instance&gt; or <client_name> fill it in with these values.
 - **tenant_id** you could say it's your organization Azure ID, go to azure portal -> type 'Microsoft Entra ID' -> copy Tenant ID
-- **region_uppercase** and **region** - region where your resources will be deployed, it's recommended to leave it as it is because some functionalities may not be available in all regions. If you wish to deploy solution in a different region please check wheter required resources are available there https://azure.microsoft.com/en-us/explore/global-infrastructure/products-by-region/ 
+- **region** - region where your resources will be deployed, it's recommended to leave it as it is because some functionalities may not be available in all regions. If you wish to deploy solution in a different region please check wheter required resources are available there https://azure.microsoft.com/en-us/explore/global-infrastructure/products-by-region/ 
 - **rg_owner_id** at Microsoft Entra search your last name -> open your profile -> copy object id
 - **server_admin_mail** your organization mail
 - **admin_sid** same value as in rg_owner_id
