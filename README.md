@@ -41,8 +41,6 @@ Database consists of 4 schemas:
 
 Deployment instructions for the solution, along with requirements, are provided in the [deployment.md](https://github.com/AstralForest/Power_BI_Monitoring/blob/master/deployment.md) file. For the demo purposes, we create all necessary resources from scratch, but the solution is highly customizable and can be adapted to already existing resources.
 
-**There is also alternative version of the solution which uses Azure Functions for API processing (check out Azure-Functions branch). As a default we recommend using this version as it is less complicated, more secure and allows to load 30 days of history during deployment**
-
 ## Solution Design
 
 The solution architecture consists of three main areas:
@@ -53,11 +51,9 @@ The solution architecture consists of three main areas:
   
 Each of these areas is independent and modular, allowing for the implementation of more fitting components tailored to specific client requirements.
 
-We developed two alternative versions of the solution. Below is quick comparison of the two of them:
+We developed two alternative versions of the solution. Below is quick comparison between the two of them:
 
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/80fd8a01-dffe-4d2b-b6f4-58204d64c067)
-
-
+![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/3a39404a-aca5-4e74-ad3b-8f22daf1d835)
 
 ## Considerations
 - As per Microsoft documentation - some metrics will expose names, email addresses of users who have access to Power BI Service.
