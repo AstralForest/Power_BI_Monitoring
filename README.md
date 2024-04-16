@@ -51,7 +51,7 @@ The solution architecture consists of three main areas:
   
 Each of these areas is independent and modular, allowing for the implementation of more fitting components tailored to specific client requirements.
 
-We developed two alternative versions of the solution. Below is quick comparison between the two of them:
+We developed two alternative versions of the solution. Below is quick comparison between the two of them to allow you to choose the one most tailored to your needs:
 
 ![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/cfb6484f-ed65-46b2-9979-38bea6e5b342)
 
