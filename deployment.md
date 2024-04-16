@@ -62,25 +62,7 @@ Open folder 'PBI Monitoring Infrastructure' -> right click on file serverless.pa
 
 ![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/907601c1-07c4-4593-b120-77c37000245f)
 
-4) In the next step we are going to upload the function code and settings.
-- Open Visual Studio Code -> 'File' -> 'Open folder' -> 'PBI Monitoring Functions'
-- Open 'function_app.py' (left option menu) -> change vault_url address (replace client_name and instance) -> press 'Ctrl' + 'S'
-  
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/bd94108c-e418-49ed-8c23-f4e0e7d517c5)
-
-- On left option menu click 'Extensions' (4 blocks icon) -> Type Azure Tools and install extension
-- Click Terminal (upper option menu) -> 'New Terminal' -> In the terminal type 'az login' and log to your Azure account (if you receive error reopen VS Code)
-- Click on Azure icon (left option menu, last icon) -> Click on little Function App icon -> 'Deploy to Function App' -> Choose your subcription and Funciton App -> In pop up click 'Deploy' (you may be prompted to sign to Azure first)
-
-  ![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/c73f4d2a-7369-4d94-81d2-30c8e9055323)
-
-5) Enable Cross-Origin Resource Sharing (it's a list of origins that can call your function)
-
-   - Go to your Resource Group at Azure Portal -> Open Function App -> Scroll down left option menu -> 'CORS' ->  Add allowed origin https://portal.azure.com  -> 'Save'
-
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/852997ea-acf7-41fb-b6de-77e8ae18ad3b)
-
-6) In this step we are going to publish Data Factory resources.
+5) In this step we are going to publish Data Factory resources.
 - At Azure Portal open your resource group and your Data Factory -> 'Launch studio' -> on left menu click on toolbox ('Manage') -> 'Git configuration' -> 'Configure' -> 'Repository type' select GitHub -> 'GitHub repository owner' type your GitHub nickname -> 'Continue' -> 'Use repository link' -> 'Git repository link' (open GitHub -> Repositories -> 'PowerBI_Monitoring' -> copy and paste browser link -> 'Collaboration branch' select main -> 'Root folder' /PBI Monitoring ADF/ -> 'Apply'
 - 'Linked services' -> 'ls_kv' -> change 'Base URL' (replace client_name and instance) -> 'Save'
 - 'ls_function' -> change 'Function App URL' (replace client_name and instance) -> 'Save'
