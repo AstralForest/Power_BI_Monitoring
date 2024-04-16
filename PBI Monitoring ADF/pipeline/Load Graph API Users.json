@@ -1,0 +1,301 @@
+{
+	"name": "Load Graph API Users",
+	"properties": {
+		"activities": [
+			{
+				"name": "Load Graph API Users",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Get Graph API Bearer Token",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "00:05:00",
+					"retry": 2,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"additionalColumns": [
+							{
+								"name": "requestDate",
+								"value": {
+									"value": "@formatDateTime(utcnow('yyyy-MM-dd'))",
+									"type": "Expression"
+								}
+							}
+						],
+						"httpRequestTimeout": "00:01:00",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"additionalHeaders": {
+							"Authorization": {
+								"value": "@concat('Bearer ', activity('Get Graph API Bearer Token').output.access_token)",
+								"type": "Expression"
+							}
+						},
+						"paginationRules": {
+							"supportRFC5988": "true",
+							"AbsoluteUrl": "$['@odata.nextLink']"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "DROP TABLE [bronze].[graph_users]",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"tableOption": "autoCreate",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "['id']"
+								},
+								"sink": {
+									"name": "id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['displayName']"
+								},
+								"sink": {
+									"name": "displayName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['givenName']"
+								},
+								"sink": {
+									"name": "givenName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['surname']"
+								},
+								"sink": {
+									"name": "surname",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['mail']"
+								},
+								"sink": {
+									"name": "mail",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['mailNickname']"
+								},
+								"sink": {
+									"name": "mailNickname",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['jobTitle']"
+								},
+								"sink": {
+									"name": "jobTitle",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['department']"
+								},
+								"sink": {
+									"name": "department",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['companyName']"
+								},
+								"sink": {
+									"name": "companyName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['officeLocation']"
+								},
+								"sink": {
+									"name": "officeLocation",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['city']"
+								},
+								"sink": {
+									"name": "city",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['accountEnabled']"
+								},
+								"sink": {
+									"name": "accountEnabled"
+								}
+							},
+							{
+								"source": {
+									"path": "$['requestDate']"
+								},
+								"sink": {
+									"name": "requestDate",
+									"type": "String"
+								}
+							}
+						],
+						"collectionReference": "$['value']",
+						"mapComplexValuesToString": true
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_rest_api",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_URL": "https://graph.microsoft.com/v1.0/users?$select=id,displayName,givenName,surname,mail,mailNickname,jobTitle,department,companyName,officeLocation,city,accountEnabled"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_sqldb",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_SchemaName": "bronze",
+							"p_TableName": "graph_users"
+						}
+					}
+				]
+			},
+			{
+				"name": "Get Client Secret from Data Vault",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "00:01:00",
+					"retry": 2,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": {
+						"value": "@pipeline().globalParameters.kv_app_secret_url",
+						"type": "Expression"
+					},
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Get Graph API Bearer Token",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Get Client Secret from Data Vault",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "00:01:00",
+					"retry": 2,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					"url": {
+						"value": "@pipeline().globalParameters.token_url",
+						"type": "Expression"
+					},
+					"body": {
+						"value": "@concat('grant_type=client_credentials',\n'&client_id=', pipeline().globalParameters.app_client_id,\n'&client_secret=', encodeUriComponent(activity('Get Client Secret from Data Vault').output.value),\n'&resource=https://graph.microsoft.com')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Load Silver",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Load Graph API Users",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "00:30:00",
+					"retry": 2,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[silver].[sp_graph_users]"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_sqldb",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"policy": {
+			"elapsedTimeMetric": {
+				"duration": "0.01:00:00"
+			}
+		},
+		"folder": {
+			"name": "Power BI Monitoring/Graph API"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-19T11:17:40Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

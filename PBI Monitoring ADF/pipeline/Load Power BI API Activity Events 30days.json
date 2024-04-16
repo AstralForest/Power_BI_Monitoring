@@ -1,0 +1,90 @@
+{
+	"name": "Load Power BI API Activity Events 30days",
+	"properties": {
+		"activities": [
+			{
+				"name": "For Each Date",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@range(1, 30)",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Load Power BI API Activity Events",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "Load Power BI API Activity Events",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"p_Date": {
+										"value": "@formatDateTime(adddays(utcnow(), mul(-1, item())), 'yyyy-MM-dd')",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Load Gold",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "For Each Date",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "00:30:00",
+					"retry": 2,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[gold].[sp_fact_activity_events]"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_sqldb",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"policy": {
+			"elapsedTimeMetric": {
+				"duration": "0.01:00:00"
+			}
+		},
+		"variables": {
+			"v_StartDateTime": {
+				"type": "String"
+			},
+			"v_EndDateTime": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Power BI Monitoring/Deployment"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-03T08:19:25Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,275 @@
+{
+	"name": "Load Power BI API Workspaces",
+	"properties": {
+		"activities": [
+			{
+				"name": "Load Power BI API Workspaces",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Get Power BI API Bearer Token",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "00:05:00",
+					"retry": 2,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"additionalColumns": [
+							{
+								"name": "requestDate",
+								"value": {
+									"value": "@formatDateTime(utcnow('yyyy-MM-dd'))",
+									"type": "Expression"
+								}
+							}
+						],
+						"httpRequestTimeout": "00:01:00",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"additionalHeaders": {
+							"Authorization": {
+								"value": "@concat('Bearer ', activity('Get Power BI API Bearer Token').output.access_token)",
+								"type": "Expression"
+							}
+						},
+						"paginationRules": {
+							"supportRFC5988": "true",
+							"AbsoluteUrl": "$['continuationUri']"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "DROP TABLE [bronze].[workspaces];",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"tableOption": "autoCreate",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "['id']"
+								},
+								"sink": {
+									"name": "id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['isReadOnly']"
+								},
+								"sink": {
+									"name": "isReadOnly",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['isOnDedicatedCapacity']"
+								},
+								"sink": {
+									"name": "isOnDedicatedCapacity",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['capacityMigrationStatus']"
+								},
+								"sink": {
+									"name": "capacityMigrationStatus",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['type']"
+								},
+								"sink": {
+									"name": "type",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['state']"
+								},
+								"sink": {
+									"name": "state",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['hasWorkspaceLevelSettings ']"
+								},
+								"sink": {
+									"name": "hasWorkspaceLevelSettings",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['name']"
+								},
+								"sink": {
+									"name": "name",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['capacityId']"
+								},
+								"sink": {
+									"name": "capacityId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['requestDate']"
+								},
+								"sink": {
+									"name": "requestDate",
+									"type": "String"
+								}
+							}
+						],
+						"collectionReference": "$['value']",
+						"mapComplexValuesToString": true
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_rest_api",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_URL": "https://api.powerbi.com/v1.0/myorg/admin/groups?$top=5000"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_sqldb",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_SchemaName": "bronze",
+							"p_TableName": "workspaces"
+						}
+					}
+				]
+			},
+			{
+				"name": "Get Client Secret from Data Vault",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "00:01:00",
+					"retry": 2,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": {
+						"value": "@pipeline().globalParameters.kv_app_secret_url",
+						"type": "Expression"
+					},
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Get Power BI API Bearer Token",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Get Client Secret from Data Vault",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "00:01:00",
+					"retry": 2,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					"url": {
+						"value": "@pipeline().globalParameters.token_url",
+						"type": "Expression"
+					},
+					"body": {
+						"value": "@concat('grant_type=client_credentials',\n'&client_id=', pipeline().globalParameters.app_client_id,\n'&client_secret=', encodeUriComponent(activity('Get Client Secret from Data Vault').output.value),\n'&resource=https://analysis.windows.net/powerbi/api')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Load Silver",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Load Power BI API Workspaces",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "00:30:00",
+					"retry": 2,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[silver].[sp_workspaces]"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_sqldb",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"policy": {
+			"elapsedTimeMetric": {
+				"duration": "0.01:00:00"
+			}
+		},
+		"folder": {
+			"name": "Power BI Monitoring/Power BI API"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-03T08:20:56Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

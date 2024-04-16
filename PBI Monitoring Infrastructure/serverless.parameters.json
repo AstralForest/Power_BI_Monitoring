@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "instance": {
+      "value": "0"
+    },
+    "client_name": {
+      "value": ""
+    },
+    "tenant_id": {
+      "value": ""
+    },
+    "region": {
+      "value": "northeurope"
+    },
+    "rg_owner_id": {
+      "value": ""
+    },
+    "server_admin_mail": {
+      "value": ""
+    },
+    "admin_sid": {
+      "value": ""
+    },
+    "app_reg_client": {
+      "value": ""
+    },
+    "app_reg_secret": {
+      "value": ""
+    }
+  }
+}

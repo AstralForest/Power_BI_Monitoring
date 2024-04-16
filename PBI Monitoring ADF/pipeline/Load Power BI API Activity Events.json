@@ -1,0 +1,671 @@
+{
+	"name": "Load Power BI API Activity Events",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set v_StartDateTime",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_StartDateTime",
+					"value": {
+						"value": "@formatDateTime(pipeline().parameters.p_Date, 'yyyy-MM-ddTHH:mm:ss')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set v_EndDateTime",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set v_StartDateTime",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_EndDateTime",
+					"value": {
+						"value": "@formatDateTime(adddays(addseconds(pipeline().parameters.p_Date, -1), +1), 'yyyy-MM-ddTHH:mm:ss')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Get Client Secret from Data Vault",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "00:01:00",
+					"retry": 2,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": {
+						"value": "@pipeline().globalParameters.kv_app_secret_url",
+						"type": "Expression"
+					},
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Get Power BI API Bearer Token",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Get Client Secret from Data Vault",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "00:01:00",
+					"retry": 2,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					"url": {
+						"value": "@pipeline().globalParameters.token_url",
+						"type": "Expression"
+					},
+					"body": {
+						"value": "@concat('grant_type=client_credentials',\n'&client_id=', pipeline().globalParameters.app_client_id,\n'&client_secret=', encodeUriComponent(activity('Get Client Secret from Data Vault').output.value),\n'&resource=https://analysis.windows.net/powerbi/api')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Load Silver",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Load Power BI API Activity Events",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "00:30:00",
+					"retry": 2,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[silver].[sp_activity_events]"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_sqldb",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Load Power BI API Activity Events",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Get Power BI API Bearer Token",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Set v_EndDateTime",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "00:05:00",
+					"retry": 2,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"additionalColumns": [
+							{
+								"name": "requestDate",
+								"value": {
+									"value": "@formatDateTime(utcnow('yyyy-MM-dd'))",
+									"type": "Expression"
+								}
+							}
+						],
+						"httpRequestTimeout": "00:05:00",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"additionalHeaders": {
+							"Authorization": {
+								"value": "@concat('Bearer ', activity('Get Power BI API Bearer Token').output.access_token)",
+								"type": "Expression"
+							}
+						},
+						"paginationRules": {
+							"supportRFC5988": "true",
+							"AbsoluteUrl": "$['continuationUri']"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "DROP TABLE [bronze].[activity_events]",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"tableOption": "autoCreate",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "['Activity']"
+								},
+								"sink": {
+									"name": "Activity",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['ActivityId']"
+								},
+								"sink": {
+									"name": "ActivityId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['AppId']"
+								},
+								"sink": {
+									"name": "AppId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['AppName']"
+								},
+								"sink": {
+									"name": "AppName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['AppReportId']"
+								},
+								"sink": {
+									"name": "AppReportId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['ArtifactId']"
+								},
+								"sink": {
+									"name": "ArtifactId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['ArtifactName']"
+								},
+								"sink": {
+									"name": "ArtifactName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['AuditedArtifactInformation']"
+								},
+								"sink": {
+									"name": "AuditedArtifactInformation",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['CapacityId']"
+								},
+								"sink": {
+									"name": "CapacityId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['CapacityName']"
+								},
+								"sink": {
+									"name": "CapacityName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['ClientIP']"
+								},
+								"sink": {
+									"name": "ClientIP",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['ConsumptionMethod']"
+								},
+								"sink": {
+									"name": "ConsumptionMethod",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['CopiedReportId']"
+								},
+								"sink": {
+									"name": "CopiedReportId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['CopiedReportName']"
+								},
+								"sink": {
+									"name": "CopiedReportName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['CreationTime']"
+								},
+								"sink": {
+									"name": "CreationTime",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['DataConnectivityMode']"
+								},
+								"sink": {
+									"name": "DataConnectivityMode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['DatasetId']"
+								},
+								"sink": {
+									"name": "DatasetId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['DatasetName']"
+								},
+								"sink": {
+									"name": "DatasetName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Datasets']"
+								},
+								"sink": {
+									"name": "Datasets",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['DistributionMethod']"
+								},
+								"sink": {
+									"name": "DistributionMethod",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['ExternalSubscribeeInformation']"
+								},
+								"sink": {
+									"name": "ExternalSubscribeeInformation",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Id']"
+								},
+								"sink": {
+									"name": "Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['IsSuccess']"
+								},
+								"sink": {
+									"name": "IsSuccess",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['ItemName']"
+								},
+								"sink": {
+									"name": "ItemName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['LastRefreshTime']"
+								},
+								"sink": {
+									"name": "LastRefreshTime",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['MentionedUsersInformation']"
+								},
+								"sink": {
+									"name": "MentionedUsersInformation",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['ObjectId']"
+								},
+								"sink": {
+									"name": "ObjectId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Operation']"
+								},
+								"sink": {
+									"name": "Operation",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['OrganizationId']"
+								},
+								"sink": {
+									"name": "OrganizationId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['RecordType']"
+								},
+								"sink": {
+									"name": "RecordType",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['ReportId']"
+								},
+								"sink": {
+									"name": "ReportId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['ReportName']"
+								},
+								"sink": {
+									"name": "ReportName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['ReportType']"
+								},
+								"sink": {
+									"name": "ReportType",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['RequestId']"
+								},
+								"sink": {
+									"name": "RequestId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['SharingAction']"
+								},
+								"sink": {
+									"name": "SharingAction",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['SharingInformation']"
+								},
+								"sink": {
+									"name": "SharingInformation",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['SubscribeeInformation']"
+								},
+								"sink": {
+									"name": "SubscribeeInformation",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['SubscriptionSchedule']"
+								},
+								"sink": {
+									"name": "SubscriptionSchedule",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['TargetWorkspaceId']"
+								},
+								"sink": {
+									"name": "TargetWorkspaceId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['UserAgent']"
+								},
+								"sink": {
+									"name": "UserAgent",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['UserId']"
+								},
+								"sink": {
+									"name": "UserId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['UserKey']"
+								},
+								"sink": {
+									"name": "UserKey",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['UserType']"
+								},
+								"sink": {
+									"name": "UserType",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Workload']"
+								},
+								"sink": {
+									"name": "Workload",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['WorkspaceId']"
+								},
+								"sink": {
+									"name": "WorkspaceId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['WorkSpaceName']"
+								},
+								"sink": {
+									"name": "WorkSpaceName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['requestDate']"
+								},
+								"sink": {
+									"name": "requestDate",
+									"type": "String"
+								}
+							}
+						],
+						"collectionReference": "$['activityEventEntities']",
+						"mapComplexValuesToString": true
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_rest_api",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_URL": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/admin/activityevents?startDateTime=''', variables('v_StartDateTime'), '''&endDateTime=''', variables('v_EndDateTime'), '''')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_sqldb",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_SchemaName": "bronze",
+							"p_TableName": "activity_events"
+						}
+					}
+				]
+			}
+		],
+		"policy": {
+			"elapsedTimeMetric": {
+				"duration": "0.01:00:00"
+			}
+		},
+		"parameters": {
+			"p_Date": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"v_StartDateTime": {
+				"type": "String"
+			},
+			"v_EndDateTime": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Power BI Monitoring/Power BI API"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-03T08:19:25Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,20 @@
+{
+	"name": "adf-af-pbimon-0",
+	"properties": {
+		"globalParameters": {
+			"token_url": {
+				"type": "string",
+				"value": "https://login.microsoftonline.com/{tenant_id}/oauth2/token"
+			},
+			"kv_app_secret_url": {
+				"type": "string",
+				"value": "https://kv-{client}-pbimon-0.vault.azure.net/secrets/secret-pbimon-app-reg-secret/?api-version=7.0"
+			},
+			"app_client_id": {
+				"type": "string",
+				"value": "{app_client_id}"
+			}
+		}
+	},
+	"location": "northeurope"
+}
