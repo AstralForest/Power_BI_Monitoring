@@ -98,7 +98,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(storageAccount.id, rg_owner_id, contributorRoleDefinition.id)
   properties: {
     roleDefinitionId: contributorRoleDefinition.id
-    principalId: 'cbabeab8-cb17-4be5-a7c4-82ef576099d2'
+    principalId: rg_owner_id
     principalType: 'User'
   }
 }
