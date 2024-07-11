@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "value": "adf-af-pbimon-1"
+        },
+        "ls_kv_properties_typeProperties_baseUrl": {
+            "value": "https://kv-af-pbimon-1.vault.azure.net/"
+        },
+        "ls_rest_api_properties_typeProperties_url": {
+            "value": "@{linkedService().p_URL}"
+        },
+        "ls_sqldb_properties_typeProperties_connectionString_secretName": {
+            "value": "secret-pbimon-db-connection-string"
+        },
+        "default_properties_token_url_value": {
+            "value": "https://login.microsoftonline.com/6313bce2-6153-4750-9bef-879dcc6da67a/oauth2/token"
+        },
+        "default_properties_kv_app_secret_url_value": {
+            "value": "https://kv-af-pbimon-1.vault.azure.net/secrets/secret-pbimon-app-reg-secret/?api-version=7.0"
+        },
+        "default_properties_app_client_id_value": {
+            "value": "78504ad0-c82b-4974-bd94-2e14d3424fce"
+        }
+    }
+}

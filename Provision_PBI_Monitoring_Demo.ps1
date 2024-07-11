@@ -109,19 +109,19 @@ $serverAdminMail = az ad signed-in-user show --query "mail" -o tsv
 $bicepFile = ".\PBI Monitoring Infrastructure\serverless.bicep"
 $bacpacFile = ".\PBI Monitoring Infrastructure\database.bacpac"
 
-$tenant_id = $appRegistrationDetails.TenantId
-$client_id = $appRegistrationDetails.ClientId
-$client_secret = $appRegistrationDetails.ClientSecret
+$tenantId = $appRegistrationDetails.TenantId
+$clientId = $appRegistrationDetails.ClientId
+$clientSecret = $appRegistrationDetails.ClientSecret
 
 # Deploy the Bicep file using Azure CLI with individual parameters
 Write-Host "Deploying Bicep template..."
 az deployment group create --resource-group $resourceGroupName --template-file $bicepFile --parameters `
     instance="01" `
     client_name=$orgName `
-    tenant_id=$tenant_id `
+    tenant_id=$tenantId `
     region=$location `
-    app_reg_client=$client_id `
-    app_reg_secret=$client_secret `
+    app_reg_client=$clientId `
+    app_reg_secret=$clientSecret `
     rg_owner_id=$rgOwnerId `
     server_admin_mail=$serverAdminMail 
 
@@ -135,6 +135,8 @@ az deployment group create --resource-group $resourceGroupName --template-file $
     Write-Host "Importing database into the SQL Server..."
     $serverName = "server-${orgName}-pbimon-01"
     $databaseName = "db-${orgName}-pbimon-01"
+    $dataFactoryName = "adf-${orgName}-pbimon-01"
+    $kvName = "kv-${orgName}-pbimon-01"
     $adminLogin = "login_server_pbimon"
     $serverPassword = az keyvault secret show --vault-name "kv-${orgName}-pbimon-01" --name "secret-pbimon-server" --query "value" -o tsv
     
@@ -145,3 +147,21 @@ az deployment group create --resource-group $resourceGroupName --template-file $
     Invoke-Expression $importCommand
     
     Write-Host "Database import initiated. You can monitor the progress in the Azure portal."
+
+    # define adf name
+
+    # Path to the ADF template and parameters files
+    $adfTemplateFile = "PBI Monitoring Published ADF/ARMTemplateForFactory.json"
+    $adfParametersFile = "PBI Monitoring Published ADF/ARMTemplateParametersForFactory.json"
+
+    # Deploy the ADF template using Azure CLI
+    Write-Host "Deploying ADF template..."
+    az deployment group create --resource-group $resourceGroupName --template-file $adfTemplateFile `
+        --parameters $adfParametersFile `
+        --parameters factoryName=$dataFactoryName `
+                     ls_kv_properties_typeProperties_baseUrl="https://$kvName.vault.azure.net/" `
+                     default_properties_token_url_value="https://login.microsoftonline.com/$tenantId/oauth2/token" `
+                     default_properties_kv_app_secret_url_value="https://$kvName.vault.azure.net/secrets/secret-pbimon-app-reg-secret/?api-version=7.0" `
+                     default_properties_app_client_id_value=$clientId
+
+    Write-Host "ADF deployment completed successfully."
