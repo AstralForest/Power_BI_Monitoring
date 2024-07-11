@@ -2,12 +2,6 @@
 param instance string
 param client_name string
 
-param data_factory_name string = 'adf-${client_name}-pbimon-${instance}'
-param vault_name string = 'kv-${client_name}-pbimon-${instance}'
-param server_name string = 'server-${client_name}-pbimon-${instance}'
-param db_name string = 'db-${client_name}-pbimon-${instance}'
-param storage_name string = 'st${client_name}pbimon${instance}'
-
 // Tenant
 param tenant_id string
 
@@ -17,7 +11,6 @@ param region string
 // Roles
 param rg_owner_id string
 param server_admin_mail string
-param admin_sid string
 
 // Key Vault secrets
 @secure()
@@ -26,6 +19,12 @@ param server_password string = newGuid()
 param app_reg_client string
 @secure()
 param app_reg_secret string
+
+var data_factory_name = 'adf-${client_name}-pbimon-${instance}'
+var vault_name = 'kv-${client_name}-pbimon-${instance}'
+var server_name = 'server-${client_name}-pbimon-${instance}'
+var db_name = 'db-${client_name}-pbimon-${instance}'
+var storage_name = 'st${client_name}pbimon${instance}'
 
 // (1) Data Factory
 resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
@@ -53,11 +52,24 @@ resource sqlServer 'Microsoft.Sql/servers@2023-02-01-preview' = {
       administratorType: 'ActiveDirectory'
       principalType: 'Group'
       login: server_admin_mail
-      sid: admin_sid
+      sid: rg_owner_id
       tenantId: tenant_id
       azureADOnlyAuthentication: false
     }
     restrictOutboundNetworkAccess: 'Disabled'
+  }
+}
+
+resource sqlDatabase 'Microsoft.Sql/servers/databases@2021-02-01-preview' = {
+  name: db_name
+  parent: sqlServer
+  location: region
+  properties: {
+    collation: 'SQL_Latin1_General_CP1_CI_AS'
+  }
+  sku: {
+    name: 'S0'
+    tier: 'Standard'
   }
 }
 

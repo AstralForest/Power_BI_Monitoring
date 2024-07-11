@@ -1,4 +1,3 @@
-
 # Ensure Azure CLI is installed
 if (-not (Get-Command az -ErrorAction SilentlyContinue)) {
     Write-Host "Azure CLI is not installed. Please install it from https://docs.microsoft.com/en-us/cli/azure/install-azure-cli and then re-run this script."
@@ -23,15 +22,6 @@ function Get-OrganizationName {
             Write-Host "The organization name must be 5 characters or less. Please try again."
         }
     }
-}
-
-# Function to prompt for the resource group name
-function Get-ResourceGroupName {
-    param (
-        [string]$orgName
-    )
-    
-    return "rg-$orgName-pbidemo-01"
 }
 
 # Function to get available subscriptions and prompt user to select one
@@ -83,7 +73,7 @@ function Get-Location {
 $orgName = Get-OrganizationName
 
 # Get the resource group name based on the organization name
-$resourceGroupName = Get-ResourceGroupName -orgName $orgName
+$resourceGroupName = "rg-$orgName-pbidemo-01"
 
 # Get the subscription ID from the user
 $subscriptionId = Get-Subscription
@@ -109,7 +99,49 @@ Write-Host "Resource group '$resourceGroupName' created successfully."
 Write-Host "Creating app registration..."
 $appRegistrationDetails = & .\Create-AppRegistration.ps1 -orgName $orgName
 
-Write-Host "App registration created successfully with details:"
-Write-Host $appRegistrationDetails
+# Get the object ID of the user running the script
+$rgOwnerId = az ad signed-in-user show --query "id" -o tsv
 
-Write-Host "Demo provisioning script completed successfully."
+# Get the email of the user running the script
+$serverAdminMail = az ad signed-in-user show --query "mail" -o tsv
+
+# Path to the Bicep file
+$bicepFile = ".\PBI Monitoring Infrastructure\serverless.bicep"
+$bacpacFile = ".\PBI Monitoring Infrastructure\database.bacpac"
+
+$tenant_id = $appRegistrationDetails.TenantId
+$client_id = $appRegistrationDetails.ClientId
+$client_secret = $appRegistrationDetails.ClientSecret
+
+# Deploy the Bicep file using Azure CLI with individual parameters
+Write-Host "Deploying Bicep template..."
+az deployment group create --resource-group $resourceGroupName --template-file $bicepFile --parameters `
+    instance="01" `
+    client_name=$orgName `
+    tenant_id=$tenant_id `
+    region=$location `
+    app_reg_client=$client_id `
+    app_reg_secret=$client_secret `
+    rg_owner_id=$rgOwnerId `
+    server_admin_mail=$serverAdminMail 
+
+    Write-Host "Environment provisioning completed successfully."
+
+    # Upload the .bacpac file to the storage account
+    $storageAccountName = "st${orgName}pbimon01"
+    Write-Host "Uploading .bacpac file to the storage account '$storageAccountName'..."
+    az storage blob upload --account-name $storageAccountName --container-name bacpac --name database.bacpac --type block --file $bacpacFile --auth-mode login --overwrite true
+    
+    Write-Host "Importing database into the SQL Server..."
+    $serverName = "server-${orgName}-pbimon-01"
+    $databaseName = "db-${orgName}-pbimon-01"
+    $adminLogin = "login_server_pbimon"
+    $serverPassword = az keyvault secret show --vault-name "kv-${orgName}-pbimon-01" --name "secret-pbimon-server" --query "value" -o tsv
+    
+    # Construct the import command
+    $importCommand = ("az sql db import -g $resourceGroupName -s $serverName -n $databaseName --storage-key-type StorageAccessKey --storage-key", $(az storage account keys list --account-name $storageAccountName --query "[0].value" -o tsv), "--storage-uri `"https://${storageAccountName}.blob.core.windows.net/bacpac/database.bacpac`" --admin-user $adminLogin --admin-password $serverPassword") -join ' '
+    
+    # Execute the import command
+    Invoke-Expression $importCommand
+    
+    Write-Host "Database import initiated. You can monitor the progress in the Azure portal."
