@@ -99,6 +99,25 @@ Write-Host "Resource group '$resourceGroupName' created successfully."
 Write-Host "Creating app registration..."
 $appRegistrationDetails = & .\Create-AppRegistration.ps1 -orgName $orgName
 
+$securityGroupName = "sg_${orgName}_pbi_mon_demo"
+Write-Host "Creating security group '$securityGroupName'..."
+$securityGroup = az ad group create --display-name $securityGroupName --mail-nickname $securityGroupName --query "id" -o tsv
+
+# Check if the security group was created successfully
+if (-not $securityGroup) {
+    Write-Host "Failed to create the security group '$securityGroupName'. Exiting."
+    exit 1
+}
+
+Write-Host "Security group '$securityGroupName' created successfully with ID: $securityGroup"
+
+# Add the service principal to the security group
+$servicePrincipalId = $appRegistrationDetails.ClientId
+Write-Host "Adding service principal with ID '$servicePrincipalId' to the security group '$securityGroupName'..."
+az ad group member add --group $securityGroup --member-id $servicePrincipalId
+
+Write-Host "Service principal added to the security group successfully."
+
 # Get the object ID of the user running the script
 $rgOwnerId = az ad signed-in-user show --query "id" -o tsv
 
@@ -125,43 +144,43 @@ az deployment group create --resource-group $resourceGroupName --template-file $
     rg_owner_id=$rgOwnerId `
     server_admin_mail=$serverAdminMail 
 
-    Write-Host "Environment provisioning completed successfully."
+Write-Host "Environment provisioning completed successfully."
 
-    # Upload the .bacpac file to the storage account
-    $storageAccountName = "st${orgName}pbimon01"
-    Write-Host "Uploading .bacpac file to the storage account '$storageAccountName'..."
-    az storage blob upload --account-name $storageAccountName --container-name bacpac --name database.bacpac --type block --file $bacpacFile --auth-mode login --overwrite true
-    
-    Write-Host "Importing database into the SQL Server..."
-    $serverName = "server-${orgName}-pbimon-01"
-    $databaseName = "db-${orgName}-pbimon-01"
-    $dataFactoryName = "adf-${orgName}-pbimon-01"
-    $kvName = "kv-${orgName}-pbimon-01"
-    $adminLogin = "login_server_pbimon"
-    $serverPassword = az keyvault secret show --vault-name "kv-${orgName}-pbimon-01" --name "secret-pbimon-server" --query "value" -o tsv
-    
-    # Construct the import command
-    $importCommand = ("az sql db import -g $resourceGroupName -s $serverName -n $databaseName --storage-key-type StorageAccessKey --storage-key", $(az storage account keys list --account-name $storageAccountName --query "[0].value" -o tsv), "--storage-uri `"https://${storageAccountName}.blob.core.windows.net/bacpac/database.bacpac`" --admin-user $adminLogin --admin-password $serverPassword") -join ' '
-    
-    # Execute the import command
-    Invoke-Expression $importCommand
-    
-    Write-Host "Database import initiated. You can monitor the progress in the Azure portal."
+# Upload the .bacpac file to the storage account
+$storageAccountName = "st${orgName}pbimon01"
+Write-Host "Uploading .bacpac file to the storage account '$storageAccountName'..."
+az storage blob upload --account-name $storageAccountName --container-name bacpac --name database.bacpac --type block --file $bacpacFile --auth-mode login --overwrite true
 
-    # define adf name
+Write-Host "Importing database into the SQL Server..."
+$serverName = "server-${orgName}-pbimon-01"
+$databaseName = "db-${orgName}-pbimon-01"
+$dataFactoryName = "adf-${orgName}-pbimon-01"
+$kvName = "kv-${orgName}-pbimon-01"
+$adminLogin = "login_server_pbimon"
+$serverPassword = az keyvault secret show --vault-name "kv-${orgName}-pbimon-01" --name "secret-pbimon-server" --query "value" -o tsv
 
-    # Path to the ADF template and parameters files
-    $adfTemplateFile = "PBI Monitoring Published ADF/ARMTemplateForFactory.json"
-    $adfParametersFile = "PBI Monitoring Published ADF/ARMTemplateParametersForFactory.json"
+# Construct the import command
+$importCommand = ("az sql db import -g $resourceGroupName -s $serverName -n $databaseName --storage-key-type StorageAccessKey --storage-key", $(az storage account keys list --account-name $storageAccountName --query "[0].value" -o tsv), "--storage-uri `"https://${storageAccountName}.blob.core.windows.net/bacpac/database.bacpac`" --admin-user $adminLogin --admin-password $serverPassword") -join ' '
 
-    # Deploy the ADF template using Azure CLI
-    Write-Host "Deploying ADF template..."
-    az deployment group create --resource-group $resourceGroupName --template-file $adfTemplateFile `
-        --parameters $adfParametersFile `
-        --parameters factoryName=$dataFactoryName `
-                     ls_kv_properties_typeProperties_baseUrl="https://$kvName.vault.azure.net/" `
-                     default_properties_token_url_value="https://login.microsoftonline.com/$tenantId/oauth2/token" `
-                     default_properties_kv_app_secret_url_value="https://$kvName.vault.azure.net/secrets/secret-pbimon-app-reg-secret/?api-version=7.0" `
-                     default_properties_app_client_id_value=$clientId
+# Execute the import command
+Invoke-Expression $importCommand
 
-    Write-Host "ADF deployment completed successfully."
+Write-Host "Database import initiated. You can monitor the progress in the Azure portal."
+
+# define adf name
+
+# Path to the ADF template and parameters files
+$adfTemplateFile = "PBI Monitoring Published ADF/ARMTemplateForFactory.json"
+$adfParametersFile = "PBI Monitoring Published ADF/ARMTemplateParametersForFactory.json"
+
+# Deploy the ADF template using Azure CLI
+Write-Host "Deploying ADF template..."
+az deployment group create --resource-group $resourceGroupName --template-file $adfTemplateFile `
+    --parameters $adfParametersFile `
+    --parameters factoryName=$dataFactoryName `
+                ls_kv_properties_typeProperties_baseUrl="https://$kvName.vault.azure.net/" `
+                default_properties_token_url_value="https://login.microsoftonline.com/$tenantId/oauth2/token" `
+                default_properties_kv_app_secret_url_value="https://$kvName.vault.azure.net/secrets/secret-pbimon-app-reg-secret/?api-version=7.0" `
+                default_properties_app_client_id_value=$clientId
+
+Write-Host "ADF deployment completed successfully."
