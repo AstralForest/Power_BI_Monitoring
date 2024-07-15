@@ -99,17 +99,8 @@ Write-Host "Resource group '$resourceGroupName' created successfully."
 Write-Host "Creating app registration..."
 $appRegistrationDetails = & .\Create-AppRegistration.ps1 -orgName $orgName
 
-$securityGroupName = "sg_${orgName}_pbi_mon_demo"
-Write-Host "Creating security group '$securityGroupName'..."
-$securityGroup = az ad group create --display-name $securityGroupName --mail-nickname $securityGroupName --query "id" -o tsv
-
-# Check if the security group was created successfully
-if (-not $securityGroup) {
-    Write-Host "Failed to create the security group '$securityGroupName'. Exiting."
-    exit 1
-}
-
-Write-Host "Security group '$securityGroupName' created successfully with ID: $securityGroup"
+Write-Host "Creating security group..."
+$securityGroup = & .\Create-SecurityGroup.ps1 -orgName $orgName
 
 # Add the service principal to the security group
 $servicePrincipalId = $appRegistrationDetails.SPObjectId

@@ -18,7 +18,6 @@ $sp = az ad sp create --id $app.appId | ConvertFrom-Json
 # Output app details
 $clientId = $app.appId
 $tenantId = az account show --query "tenantId" -o tsv
-Write-Host $sp
 $spObjectId = $sp.id
 
 Write-Host "App registration created successfully"
