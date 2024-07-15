@@ -30,7 +30,7 @@ try {
 
     Invoke-RestMethod -Method Post `
             -Uri "https://api.powerbi.com/v1.0/myorg/groups/$workspaceId/datasets/$($dataset.Id)/Default.UpdateDatasources" `
-            -Headers @{ Authorization = "Bearer $((Get-PowerBIAccessToken).AccessToken)" } `
+            -Headers @{ Authorization = "Bearer $accessToken" } `
             -Body $datasourceConnectionDetailsJson `
             -ContentType "application/json"
 

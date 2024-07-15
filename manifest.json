@@ -1,17 +1,21 @@
 {
     "requiredResourceAccess": [
-        {
-            "resourceAppId": "00000003-0000-0000-c000-000000000000",
-            "resourceAccess": [
-                {
-                    "id": "5b567255-7703-4780-807c-7be8301ae99b",
-                    "type": "Role"
-                },
-                {
-                    "id": "7ab1d382-f21e-4acd-a863-ba3e13f7da61",
-                    "type": "Role"
-                }
-            ]
-        }
-    ]
+		{
+			"resourceAppId": "00000003-0000-0000-c000-000000000000",
+			"resourceAccess": [
+				{
+					"id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d",
+					"type": "Scope"
+				},
+				{
+					"id": "5b567255-7703-4780-807c-7be8301ae99b",
+					"type": "Role"
+				},
+				{
+					"id": "df021288-bdef-4463-88db-98f22de89214",
+					"type": "Role"
+				}
+			]
+		}
+	]
 }

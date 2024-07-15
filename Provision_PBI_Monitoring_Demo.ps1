@@ -112,7 +112,7 @@ if (-not $securityGroup) {
 Write-Host "Security group '$securityGroupName' created successfully with ID: $securityGroup"
 
 # Add the service principal to the security group
-$servicePrincipalId = $appRegistrationDetails.ClientId
+$servicePrincipalId = $appRegistrationDetails.SPObjectId
 Write-Host "Adding service principal with ID '$servicePrincipalId' to the security group '$securityGroupName'..."
 az ad group member add --group $securityGroup --member-id $servicePrincipalId
 
