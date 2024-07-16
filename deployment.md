@@ -9,12 +9,12 @@
 Deployment process is almost fully automated and only requires manual intervention in places where the admin consent is required
 The deployment process consists of following steps:
 1. Run the provisioning of PBI Monitoring Azure environment. What it does:
-1.1. Provisions all Azure components
-1.2. Copies database image to storage account and imports that into newly created database
-1.3. Imports ADF resources into newly created Azure Data Factory instance
-1.4. Creates **App Registration**, grants it privileges and creates Service Principal for it
-1.5. Creates a **Security Group** and adds service principal to it
-1.6. Provisions PowerBI workspace, deploys report and changes the connection string to a newly created database
+  1.1. Provisions all Azure components
+  1.2. Copies database image to storage account and imports that into newly created database
+  1.3. Imports ADF resources into newly created Azure Data Factory instance
+  1.4. Creates **App Registration**, grants it privileges and creates Service Principal for it
+  1.5. Creates a **Security Group** and adds service principal to it
+  1.6. Provisions PowerBI workspace, deploys report and changes the connection string to a newly created database
 
 # How to start
 1) Clone repository from **main** branch into your local machine

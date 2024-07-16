@@ -2,10 +2,12 @@ param (
     [string]$orgName
 )
 
+$manifestFile = Join-Path -Path $PSScriptRoot -ChildPath "manifest.json"
+
 # Create the app registration
 $appName = "appreg-$orgName-pbi-mon-demo"
 Write-Host "Creating app registration with name: $appName"
-$app = az ad app create --display-name $appName --required-resource-accesses .\manifest.json | ConvertFrom-Json
+$app = az ad app create --display-name $appName --required-resource-accesses $manifestFile | ConvertFrom-Json
 
 # Generate a client secret
 Write-Host "Generating client secret"
