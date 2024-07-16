@@ -14,12 +14,32 @@ The deployment process consists of following steps:
 1.3. Imports ADF resources into newly created Azure Data Factory instance
 1.4. Creates **App Registration**, grants it privileges and creates Service Principal for it
 1.5. Creates a **Security Group** and adds service principal to it
-1.6. (Work In Progress) Provisions PowerBI workspace, deploys report and changes the connection string to a newly created database
+1.6. Provisions PowerBI workspace, deploys report and changes the connection string to a newly created database
 
 # How to start
 1) Clone repository from **main** branch into your local machine
 2) Open cloned folder and open PowerShell in it
 3) Execute the following command: ".\Provision_PBI_Monitoring_Demo.ps1"
+4) Follow instructions of the script. It will require just the short name of the organisation (up to 5 letters) and the region where to provision it (you can press Enter to proceed with northeurope). All the rest is done automatically
+
+
+
+
+
+# Naming conventions applied to resources:
+**Resource Group**: rg-{companyName}-pbi
+**Server Name**: server-{companyName}-pbimon-01
+**Database Name**: db-{companyName}-pbimon-01
+**Key Vault Name**: kv-{companyName}-pbimon-01
+**Azure Data Factory**: adf-{companyName}-pbimon-01
+**Storage Account**: st{companyName}pbimon01
+**App Registration**: appreg-{companyName}-pbi-mon-demo
+**Service Principal**: appreg-{companyName}-pbi-mon-demo
+**Security Group**: sg_{companyName}_pbi_mon_demo
+**Power BI Workspace**: PBI_Demo_Workspace
+**Power BI Report**: PBI_Monitoring_Demo_2024
+
+
 
 1) First step is to create App Registration (technical user, an app representation that will be making API requests) with access to both Graph and Power BI API.
 - Open [Azure portal](https://portal.azure.com/) -> type 'app registrations' in search panel -> select 'New registration' -> fill registration name (for example 'AR_PBI_Monitoring') -> Select 'Accounts in this organizational directory only (Single tenant)' -> Click 'Register'

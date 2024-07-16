@@ -97,10 +97,10 @@ Write-Host "Resource group '$resourceGroupName' created successfully."
 
 # Call the script to create an app registration
 Write-Host "Creating app registration..."
-$appRegistrationDetails = & .\Create-AppRegistration.ps1 -orgName $orgName
+$appRegistrationDetails = & .\'PowerShell Functions'\Create-AppRegistration.ps1 -orgName $orgName
 
 Write-Host "Creating security group..."
-$securityGroup = & .\Create-SecurityGroup.ps1 -orgName $orgName
+$securityGroup = & .\'PowerShell Functions'\Create-SecurityGroup.ps1 -orgName $orgName
 
 # Add the service principal to the security group
 $servicePrincipalId = $appRegistrationDetails.SPObjectId
@@ -175,3 +175,6 @@ az deployment group create --resource-group $resourceGroupName --template-file $
                 default_properties_app_client_id_value=$clientId
 
 Write-Host "ADF deployment completed successfully."
+
+Write-Host "Deploying PBI Report..."
+$securityGroup = & .\'PowerShell Functions'\Deploy_PBI_Report.ps1 -serverName $serverName -databaseName $databaseName

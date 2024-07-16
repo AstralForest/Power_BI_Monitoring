@@ -1,7 +1,12 @@
+param (
+    [string]$serverName,
+    [string]$databaseName
+)
+
 try {
     # Variables
-    $workspaceName = "PBI_Auto_Deployment"
-    $pbixFilePath = "PBI_Monitoring_Demo_2024.pbix"
+    $workspaceName = "PBI_Demo_Workspace"
+    $pbixFilePath = "..\PBI Monitoring Report\PBI_Monitoring_Demo_2024.pbix"
     $reportName = "PBI_Monitoring_Demo_2024"
 
     # Authenticate
@@ -26,15 +31,11 @@ try {
     $report = Get-PowerBIReport -WorkspaceId $workspaceId | Where-Object { $_.Name -eq $reportName }
     $dataset = Get-PowerBIDataset -WorkspaceId $workspaceId | Where-Object { $_.Id -eq $report.DatasetId }
 
-Write-Host $report
+    $datasourceConnectionDetailsJson = "{`"updateDetails`":[{`"connectionDetails`":{`"server`":`"$serverName`",`"database`":`"$databaseName`"}}]}"
 
-    $datasourceConnectionDetailsJson = "{`"updateDetail`":[{`"connectionDetails`":{`"server`":`"server-astra-pbimon-02.database.windows.net`",`"database`":`"db-astra-pbimon-02`"}}]}"
-
-    Invoke-RestMethod -Method Post `
-            -Uri "https://api.powerbi.com/v1.0/myorg/groups/$workspaceId/datasets/$($dataset.Id)/Default.UpdateDatasources" `
-            -Headers @{ Authorization = "Bearer $((Get-PowerBIAccessToken).AccessToken)" } `
+    Invoke-PowerBIRestMethod -Method Post `
+            -url "https://api.powerbi.com/v1.0/myorg/groups/$workspaceId/datasets/$($dataset.Id)/Default.UpdateDatasources" `
             -Body $datasourceConnectionDetailsJson `
-            -ContentType "application/json"
 
     Write-Output "Report and Dataset imported and parameters updated successfully."
 } catch {
