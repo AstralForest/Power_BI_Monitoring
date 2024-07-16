@@ -26,11 +26,13 @@ try {
     $report = Get-PowerBIReport -WorkspaceId $workspaceId | Where-Object { $_.Name -eq $reportName }
     $dataset = Get-PowerBIDataset -WorkspaceId $workspaceId | Where-Object { $_.Id -eq $report.DatasetId }
 
-    $datasourceConnectionDetailsJson = "{`"updateDetail`":[{`"connectionDetails`":{`"server`":`"server-astra-pbimon-01.database.windows.net`",`"database`":`"db-astra-pbimon-01`"}}]}"
+Write-Host $report
+
+    $datasourceConnectionDetailsJson = "{`"updateDetail`":[{`"connectionDetails`":{`"server`":`"server-astra-pbimon-02.database.windows.net`",`"database`":`"db-astra-pbimon-02`"}}]}"
 
     Invoke-RestMethod -Method Post `
             -Uri "https://api.powerbi.com/v1.0/myorg/groups/$workspaceId/datasets/$($dataset.Id)/Default.UpdateDatasources" `
-            -Headers @{ Authorization = "Bearer $accessToken" } `
+            -Headers @{ Authorization = "Bearer $((Get-PowerBIAccessToken).AccessToken)" } `
             -Body $datasourceConnectionDetailsJson `
             -ContentType "application/json"
 
