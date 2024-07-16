@@ -177,4 +177,4 @@ az deployment group create --resource-group $resourceGroupName --template-file $
 Write-Host "ADF deployment completed successfully."
 
 Write-Host "Deploying PBI Report..."
-$securityGroup = & ".\PowerShell Functions\Deploy_PBI_Report.ps1" -serverName $serverName -databaseName $databaseName
+$securityGroup = & ".\PowerShell Functions\Deploy-PBI-Report.ps1" -serverName $serverName -databaseName $databaseName
