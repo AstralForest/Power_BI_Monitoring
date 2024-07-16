@@ -7,6 +7,8 @@ if (-not (Get-Command az -ErrorAction SilentlyContinue)) {
 # Prompt the user to log in to Azure
 Write-Host "Please log in to your Azure account."
 az login
+Write-Host "Please select the account for the Power BI Service."
+Connect-PowerBIServiceAccount > $null
 
 # Function to prompt for the organization name
 function Get-OrganizationName {
