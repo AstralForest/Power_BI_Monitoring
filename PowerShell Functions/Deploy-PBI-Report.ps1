@@ -42,7 +42,7 @@ try {
     else
     {
         Write-Host "Creating new workspace named $workspaceName..."
-        $workspace = New-PowerBIWorkspace -Name $workspaceName > $null
+        $workspace = New-PowerBIWorkspace -Name $workspaceName
         Write-Host "Workspace has been created successfully"
     }
 
