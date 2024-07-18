@@ -1,38 +1,71 @@
 # Solution Prerequisites
 - Azure subscription
 - Power BI Administrator role
-- [Visual Studio Code](https://code.visualstudio.com/download) (at least community edition)
 - [GitHub account](https://github.com/join)
 - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
 
-# Deployment
+# Deployment process
 Deployment process is almost fully automated and only requires manual intervention in places where the admin consent is required
 The deployment process consists of following steps:
 
-## Provision Azure environment
-The script responsible for that executes following steps:
-1. Provisions all Azure components
-2. Copies database image to storage account and imports that into newly created database
-3. Imports ADF resources into newly created Azure Data Factory instance
-4. Creates **App Registration**, grants it privileges and creates Service Principal for it
-5. Creates a **Security Group** and adds service principal to it
-6. Provisions **PowerBI workspace**, deploys report and changes the connection string to a newly created database
+## 1) Clone repository to the local machine (~2 minutes)
+1. Execute the following command in your PowerShell: `git clone https://github.com/AstralForest/Power_BI_Monitoring.git`
+2. Enter newly created folder called "Power_BI_Monitoring"
 
-## Allow **Security Group** to access Power BI API 
+## 2) Provision Azure environment (~15 minutes)
+1. Execute the following command in PowerShell: `.\Provision-PBI-Monitoring-Demo.ps1`
+2. Follow instructions of the script. It will require just the _**short name of the organization**_ (up to 5 letters) and the region where to provision it (you can press **Enter** to proceed with **northeurope**). All the rest is done automatically
+
+> NOTE. Steps which are being executed by the script:
+> 1. Provisions all Azure components
+> 2. Copies database image to storage account and imports that into newly created database
+> 3. Imports ADF resources into newly created Azure Data Factory instance
+> 4. Creates **App Registration**, grants it privileges and creates Service Principal for it
+> 5. Creates a **Security Group** and adds service principal to it
+> 6. Provisions **PowerBI workspace**, deploys report and changes the connection string to a newly created database
+> 7. Writes down essential variables to the configuration file "adf_config.json"
+
+## 3) Allow **Security Group** to access Power BI API (**~2 minutes**)
+1. Go to [Power BI Admin settings](https://app.powerbi.com/admin-portal/tenantSettings?experience=power-bi)
+2. Add security group called "sg_{companyName}_pbi_mon_demo" to the following field:![image](https://github.com/user-attachments/assets/e0d7d913-bc89-438f-9b85-0ce7b4d314c4)
+3. Click "Apply"
+
+## 4) Verify if the admin consent is provided for the newly created App Registration (**~2 minutes**)
+1. Go to [Portal App Registration](https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade)
+2. Find and click on app registration created as part of the automatic deployment process. It should be called "appreg-{companyName}-pbi-mon-demo" where the {companyName} is the 5 character string provided during deployment
+3. Go to API permission to check whether all Configured permissions have status approved as shown on the picture below:![image](https://github.com/user-attachments/assets/ffc503da-7898-4380-88c7-1f519a827f36)
+4. If the status is not Approved, ask your organization's administrator to "Grant Admin consent for {Company Name}". So to click here:![image](https://github.com/user-attachments/assets/37c6c0a9-9b63-47a2-9c93-b5f758570ca0)
+
+## 5) Refresh data in PowerBI with the help of ADF job (**~10 minutes**)
+1. Go back to the PowerShell inside the "Power_BI_Monitoring" folder cloned to the local machine
+2. Execute the following command: `.\Trigger-ADF-Pipeline.ps1`
+3. Wait until the script is executed till the end 
+> NOTE. Script steps:
+> 1. Triggers pipeline in newly created ADF instance called "**Power BI Monitoring Master Pipeline**"
+> 2. Once the first pipeline finished it executes the second one called "**Load Power BI API Activity Events 30days**" to populate 30 days of history for the organization 
+
+## 6) Update credentials in your Power BI report (**~3 minutes**)
+1. Go to [Power BI Portal](https://app.powerbi.com/)
+2. Click on Workspaces and select newly created "PBI_Demo_Workspace"
+> ![image](https://github.com/user-attachments/assets/f921605f-9e15-42c9-a3ae-945e49322522)
+3. Go to report's dataset settings
+> ![image](https://github.com/user-attachments/assets/15b90c77-28e3-471b-8b3b-44426224bdb8)
+4. Click on "Edit credentials"
+> ![image](https://github.com/user-attachments/assets/211c1764-9687-4156-843c-0bdd0e41a900)
+5. Select authentication "OAuth2" and click "Sign In"
+> ![image](https://github.com/user-attachments/assets/ce2978e2-4707-4f3e-a952-3509cc40d454)
+6. Select the account you were provisioning the environment with in the prompt window
+
+## Final) Enjoy browsing your organization's Power BI statistics in one place! (~1 minute)
+1. Go to [Power BI Portal](https://app.powerbi.com/)
+2. Click on Workspaces and select newly created "PBI_Demo_Workspace"
+> ![image](https://github.com/user-attachments/assets/f921605f-9e15-42c9-a3ae-945e49322522)
+3. Refresh your Power BI dataset and once it is refreshed open the report
+> ![image](https://github.com/user-attachments/assets/6bc9ce45-bd78-4c3d-ad9f-5dbac0c7872c)
 
 
-
-# How to start
-1) Clone repository from **main** branch into your local machine
-2) Open cloned folder and open PowerShell in it
-3) Execute the following command: ".\Provision_PBI_Monitoring_Demo.ps1"
-4) Follow instructions of the script. It will require just the short name of the organisation (up to 5 letters) and the region where to provision it (you can press Enter to proceed with northeurope). All the rest is done automatically
-
-
-
-
-
-# Naming conventions applied to resources:
+# Additional information
+## Naming conventions used when deploying resources:
 **Resource Group**: rg-{companyName}-pbi
 **Server Name**: server-{companyName}-pbimon-01
 **Database Name**: db-{companyName}-pbimon-01
@@ -44,94 +77,3 @@ The script responsible for that executes following steps:
 **Security Group**: sg_{companyName}_pbi_mon_demo
 **Power BI Workspace**: PBI_Demo_Workspace
 **Power BI Report**: PBI_Monitoring_Demo_2024
-
-
-
-1) First step is to create App Registration (technical user, an app representation that will be making API requests) with access to both Graph and Power BI API.
-- Open [Azure portal](https://portal.azure.com/) -> type 'app registrations' in search panel -> select 'New registration' -> fill registration name (for example 'AR_PBI_Monitoring') -> Select 'Accounts in this organizational directory only (Single tenant)' -> Click 'Register'
-- In your newly create App Registration select 'API permissions' (left-side menu) -> 'Add a permission' -> 'Microsoft Graph' -> 'Application permissions' -> type 'Group.Read.All' and 'User.Read.All' select them both -> 'Add permissions'
-- Go to 'Certificates & secrets' -> 'New client secret' -> Copy newly created secret and save it somewhere
-  
-  If you receive the same Status as in the screenshot below ask your Azure Adminstrator to approve consent for the application.
-  
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/f64d184d-0675-4f00-899f-a80468fc68b9)
-
- - Next follow Microsoft documentation on enabling your Registration for read-only admin APIs. Start from step 2 (we have already created Microsoft Entra app it's another word for App Registration). https://learn.microsoft.com/lb-lu/power-bi/enterprise/read-only-apis-service-principal-authentication
-2) Fork the project -> you will be able to modify the files accoriding to your needs
-   
- ![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/8128e115-48db-450f-971d-9d9e7add6241)
-
-3) The next step is to deploy bicep template to Azure. Bicep is declarative language for creating and deploying Azure resources.
-- Download project files to your local disk -> Open project on GitHub -> 'Code' -> 'Download as Zip' -> Right click on zip file -> 'Extract all'
-Open folder 'PBI Monitoring Infrastructure' -> right click on file serverless.parameters.json -> 'Edit with Notepad' (or any other text editor) -> modify following parameters in json:
-- **instance** can be any number, default is '0' you can leave it at that (it's in order to prevent conflicts in resource names - it's necessary to fill this parameter)
-- **client_name** abbreviation for your project (for example - Astral Forest = af). Use only lowercase letters! Whenever in the instruction you see &lt;instance&gt; or <client_name> fill it in with these values.
-- **tenant_id** you could say it's your organization Azure ID, go to azure portal -> type 'Microsoft Entra ID' -> copy Tenant ID
-- **region** - region where your resources will be deployed, it's recommended to leave it as it is because some functionalities may not be available in all regions. If you wish to deploy solution in a different region please check wheter required resources are available there https://azure.microsoft.com/en-us/explore/global-infrastructure/products-by-region/ 
-- **rg_owner_id** at Microsoft Entra search your last name -> open your profile -> copy object id
-- **server_admin_mail** your organization mail
-- **admin_sid** same value as in rg_owner_id
-- **app_reg_client** open App Registration which you created -> copy value under 'Application (client) ID' 
-- **app_reg_secret** paste the secret you copied during creation of App Registration. If you forgot to do so just create new secret and copy its value.
-
-- Save all the changes -> 'Ctrl' + 'S'
-
-- In the same folder click on the path and type 'cmd' -> press enter
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/6dffd4f8-0cd4-4dc2-acbd-83cf57dbff4e)
-
-- In the Command Line paste following commands
-  
-  a) **az login** -> you should be redirected to Azure login page -> log in -> close page and come back to Command Line
-  
-  b) **az group create -l northeurope -n <new_resource_group_name> --subscription <subscription_id>** - This command creates Resoruce Group for your solution. Fill in your Resource Group name and subcription id (you can find available subscriptions in Command Line after az login - choose subcription where you have at least contributor role)
-  
-  c) **az deployment group create --resource-group <new_resource_group_name> --template-file .\serverless.bicep --parameters .\serverless.parameters.json --subscription <subscription_id>** fill in your resource group name (for example 'pbimon_myorg') and subcription id
-
-- Open Azure Portal -> Resource Groups -> your newly created group -> 'Deployments' -> serverless -> after few minutes check whether deployment was successful
-
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/901daafb-e1bc-4c93-9a13-350079cade70)
-
-- Don't close the terminal
-  
-3) The next step involves loading the database from the bacpac file (file format for databases).
-- In terminal paste following command
-  
-**az storage blob upload --account-name stfunc<client_name>pbimon&lt;instance&gt; --container-name bacpac --name database --type block --file .\database.bacpac --auth-mode login** fill in client_name and instance
-
-- In your Resource Group open SQL Server resource (it will begin with server) -> 'Import database' (upper option menu) -> 'Select backup' -> Choose storage account beginnig with 'stfunc' -> 'bacpac' -> 'Select' -> database -> 'Database name' (enter: db-<client_name>-pbimon-&lt;instance&gt;) -> 'Authentication type' SQL Server'-> 'Server admin login' login_server_pbimon -> 'Password' (in another browser page go to your Resource Group Key Vault -> 'Secrets' -> 'secret-pbimon-server' -> 'Current Version' -> 'Copy secret value' -> paste) -> 'Pricing tier' allows you to configure your Database depending on your organization scale and needs (for most case we recommend Standard S0) -> 'OK'
-
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/907601c1-07c4-4593-b120-77c37000245f)
-
-5) In this step we are going to publish Data Factory resources.
-- At Azure Portal open your resource group and your Data Factory -> 'Launch studio' -> on left menu click on toolbox ('Manage') -> 'Git configuration' -> 'Configure' -> 'Repository type' select GitHub -> 'GitHub repository owner' type your GitHub nickname -> 'Continue' -> 'Use repository link' -> 'Git repository link' (open GitHub -> Repositories -> 'PowerBI_Monitoring' -> copy and paste browser link -> 'Collaboration branch' select main -> 'Root folder' /PBI Monitoring ADF/ -> 'Apply'
-- 'Linked services' -> 'ls_kv' -> change 'Base URL' (replace client_name and instance) -> 'Save'
-   
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/29d03429-0774-40ff-837f-b6ed19781f83)
-
-- 'Global parameters' -> fill values in {} -> **token_url**; **kv_app_secret_url**; **app_client_id** (these are same values which you have filled in in step 3)
-  
- ![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/3ef46935-7397-460e-9f56-760e3e3cea0a)
-
-
-6) Test whether everything deployed successfully be running master pipeline
-- Click on pencil icon 'Author' -> 'Publish' (upper option menu) -> 'Pipelines' -> 'Power BI Monitoring' -> 'Power BI Monitoring Master Pipeline' -> 'Debug'
-
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/156897451/34a502ea-91e0-4130-a11c-b1e369850747)
-
-7) Run 'Load Power BI API Activity Events 30days' pipeline from 'Deployment' folder in order to get 30 days of history from your organization.
-
-8) To use PBI Monitoring report follow belows steps:
-- Download current version of the pbit file (for exmaple PBI_Monitoring_open_source_template_03_2024.pbit)
-- Open it file in Power BI Desktop
-- Fill parameters with your metadata information
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/161041983/35b505cb-61f1-45ca-b360-03f798397cca)
-- Press "Load" button
-- Press "Publish" button
-- Select workspace name where you want to publish the report
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/161041983/cc57b4b6-834c-43b2-98c6-0b14489bb726)
-- Press "Select" button
-- After a while you will receive information about the successful publication of the report
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/161041983/610967b4-626e-4159-80b6-be190ccf9824)
-- Now you can see published report in PBI Service
-![image](https://github.com/AstralForest/Power_BI_Monitoring/assets/161041983/d91597d3-9bb2-4135-88a6-01b345637c3b)
-
