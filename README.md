@@ -1,3 +1,5 @@
+## Full installation guide can be found here: [Demo installation guide](https://github.com/AstralForest/Power_BI_Monitoring/blob/main/deployment.md)
+
 ## Project Origin
 While working with clients, we encountered growing need for monitoring and managing Power BI Service. To address this need, we have developed a comprehensive solution that covers the following aspects:
 - Listing most active users and reports across all Power BI Tenant
