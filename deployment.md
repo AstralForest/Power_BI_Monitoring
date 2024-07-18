@@ -66,14 +66,14 @@ The deployment process consists of following steps:
 
 # Additional information
 ## Naming conventions used when deploying resources:
-**Resource Group**: rg-{companyName}-pbi
-**Server Name**: server-{companyName}-pbimon-01
-**Database Name**: db-{companyName}-pbimon-01
-**Key Vault Name**: kv-{companyName}-pbimon-01
-**Azure Data Factory**: adf-{companyName}-pbimon-01
-**Storage Account**: st{companyName}pbimon01
-**App Registration**: appreg-{companyName}-pbi-mon-demo
-**Service Principal**: appreg-{companyName}-pbi-mon-demo
-**Security Group**: sg_{companyName}_pbi_mon_demo
-**Power BI Workspace**: PBI_Demo_Workspace
-**Power BI Report**: PBI_Monitoring_Demo_2024
+- **Resource Group**: rg-{companyName}-pbi
+- **Server Name**: server-{companyName}-pbimon-01
+- **Database Name**: db-{companyName}-pbimon-01
+- **Key Vault Name**: kv-{companyName}-pbimon-01
+- **Azure Data Factory**: adf-{companyName}-pbimon-01
+- **Storage Account**: st{companyName}pbimon01
+- **App Registration**: appreg-{companyName}-pbi-mon-demo
+- **Service Principal**: appreg-{companyName}-pbi-mon-demo
+- **Security Group**: sg_{companyName}_pbi_mon_demo
+- **Power BI Workspace**: PBI_Demo_Workspace
+- **Power BI Report**: PBI_Monitoring_Demo_2024
