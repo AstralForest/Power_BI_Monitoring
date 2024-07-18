@@ -180,3 +180,19 @@ Write-Host "ADF deployment completed successfully."
 
 Write-Host "Deploying PBI Report..."
 $securityGroup = & ".\PowerShell Functions\Deploy-PBI-Report.ps1" -serverName $serverName -databaseName $databaseName
+
+
+# Write the ADF instance name, resource group name, and subscription ID to a configuration file
+$configFilePath = "adf_config.json"
+
+# Create a config object
+$config = @{
+    ADFInstanceName = $dataFactoryName
+    ResourceGroupName = $resourceGroupName
+    SubscriptionId = $subscriptionId
+}
+
+# Convert the config object to JSON and write it to a file
+$config | ConvertTo-Json | Out-File -FilePath $configFilePath -Force
+
+Write-Host "ADF instance name, resource group name, and subscription ID written to config file: $configFilePath"
