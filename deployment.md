@@ -4,9 +4,19 @@
 - [GitHub account](https://github.com/join)
 - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
 
-# Deployment process
+# Deployment overview
 Deployment process is almost fully automated and only requires manual intervention in places where the admin consent is required
-The deployment process consists of following steps:
+
+The installation process consists of following steps:
+1) Clone repository to the local machine (~2 minutes)
+2) Provision Azure environment (~15 minutes)
+3) Allow **Security Group** to access Power BI API (**~2 minutes**)
+4) Verify if the admin consent is provided for the newly created App Registration (**~2 minutes**)
+5) Refresh data in PowerBI with the help of ADF job (**~10 minutes**)
+6) Update credentials in your Power BI report (**~3 minutes**)
+7) Enjoy browsing your organization's Power BI statistics in one place! (~1 minute)
+
+# Step by step installation guide
 
 ## 1) Clone repository to the local machine (~2 minutes)
 1. Execute the following command in your PowerShell: `git clone https://github.com/AstralForest/Power_BI_Monitoring.git`
@@ -56,7 +66,7 @@ The deployment process consists of following steps:
 > ![image](https://github.com/user-attachments/assets/ce2978e2-4707-4f3e-a952-3509cc40d454)
 6. Select the account you were provisioning the environment with in the prompt window
 
-## Final) Enjoy browsing your organization's Power BI statistics in one place! (~1 minute)
+## 7) Enjoy browsing your organization's Power BI statistics in one place! (~1 minute)
 1. Go to [Power BI Portal](https://app.powerbi.com/)
 2. Click on Workspaces and select newly created "PBI_Demo_Workspace"
 > ![image](https://github.com/user-attachments/assets/f921605f-9e15-42c9-a3ae-945e49322522)
