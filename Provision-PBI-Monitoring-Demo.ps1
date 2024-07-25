@@ -3,6 +3,19 @@ if (-not (Get-Command az -ErrorAction SilentlyContinue)) {
     Write-Host "Azure CLI is not installed. Please install it from https://docs.microsoft.com/en-us/cli/azure/install-azure-cli and then re-run this script."
     exit 1
 }
+# Check if the MicrosoftPowerBIMgmt module is installed
+if (-not (Get-Module -ListAvailable -Name MicrosoftPowerBIMgmt)) {
+    Write-Host "MicrosoftPowerBIMgmt module is not installed. Installing..."
+    try {
+        Install-Module -Name MicrosoftPowerBIMgmt -Scope CurrentUser -Force -AllowClobber
+        Write-Host "MicrosoftPowerBIMgmt module installed successfully."
+    } catch {
+        Write-Host "Failed to install MicrosoftPowerBIMgmt module. Please check your permissions or internet connection."
+        exit 1
+    }
+}
+
+Import-Module MicrosoftPowerBIMgmt -ErrorAction Stop
 
 # Prompt the user to log in to Azure
 Write-Host "Please log in to your Azure account."
