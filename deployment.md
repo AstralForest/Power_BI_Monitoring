@@ -3,6 +3,7 @@
 - Power BI Administrator role
 - [GitHub account](https://github.com/join)
 - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
+> NOTE: Installation of **Azure CLI** might require you to restart your machine
 
 # Deployment overview
 Deployment process is almost fully automated and only requires manual intervention in places where the admin consent is required
