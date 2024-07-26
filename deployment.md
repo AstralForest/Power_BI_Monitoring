@@ -1,8 +1,8 @@
 # Solution Prerequisites
 - Azure subscription
 - Contributor Role on Azure Subscription
-- "Application Developer" & "Groups Administrator" roles
-- Power BI Administrator role
+- Application Developer & Groups Administrator roles
+- Power BI Tenant Administrator role
 - [GitHub account](https://github.com/join)
 - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
 > NOTE: Installation of **Azure CLI** might require you to restart your machine
