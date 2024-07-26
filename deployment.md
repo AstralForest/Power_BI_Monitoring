@@ -1,5 +1,7 @@
 # Solution Prerequisites
 - Azure subscription
+- Contributor Role on Azure Subscription
+- "Application Developer" & "Groups Administrator" roles
 - Power BI Administrator role
 - [GitHub account](https://github.com/join)
 - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
