@@ -110,7 +110,7 @@ $location = Get-Location
 
 # Create the resource group using Azure CLI
 Write-Host "Creating resource group '$resourceGroupName' in location '$location' under subscription '$subscriptionId'..."
-az group create -l $location -n $resourceGroupName --subscription $subscriptionId
+az group create -l $location -n $resourceGroupName --subscription $subscriptionId > $null
 
 # Check if the resource group was created successfully
 $resourceGroup = az group show --name $resourceGroupName --query "name" -o tsv
@@ -132,6 +132,9 @@ $appRegistrationDetails = & ".\PowerShell Functions\Create-AppRegistration.ps1" 
 
 if (-not $appRegistrationDetails) {
     Write-Host "Failed to create app registration" -ForegroundColor Red
+} else {
+    Write-Host "Successfully created app registration" -ForegroundColor Green
+    $appRegProvisioned = $true
 }
 
 if ($appRegProvisioned) {
@@ -160,6 +163,8 @@ if ($appRegProvisioned -and $sgProvisioned) {
         Write-Host "Service principal added to the security group successfully." -ForegroundColor Green
         $appRegAddedToSg = $true
     }
+} else {
+    Write-Host "App Registration is not added to security group because either Security Group has not been provisioned or App Registration not registered"  -ForegroundColor Red
 }
 
 
@@ -187,7 +192,7 @@ az deployment group create --resource-group $resourceGroupName --template-file $
     app_reg_client=$clientId `
     app_reg_secret=$clientSecret `
     rg_owner_id=$rgOwnerId `
-    server_admin_mail=$serverAdminMail 
+    server_admin_mail=$serverAdminMail > $null
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Environment provisioning failed." -ForegroundColor Red
@@ -201,8 +206,8 @@ if ($LASTEXITCODE -ne 0) {
 
 # Upload the .bacpac file to the storage account
 $storageAccountName = "st${orgName}pbimon01"
-Write-Host "Uploading .bacpac file to the storage account '$storageAccountName'..."
-az storage blob upload --account-name $storageAccountName --container-name bacpac --name database.bacpac --type block --file $bacpacFile --auth-mode login --overwrite true
+Write-Host "Uploading .bacpac file to the storage account '$storageAccountName'..." -ForegroundColor Yellow
+az storage blob upload --account-name $storageAccountName --container-name bacpac --name database.bacpac --type block --file $bacpacFile --auth-mode login --overwrite true > $null
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "DACPAC was not uploaded to Storage Account." -ForegroundColor Red
@@ -220,13 +225,16 @@ $kvName = "kv-${orgName}-pbimon-01"
 $adminLogin = "login_server_pbimon"
 $serverPassword = az keyvault secret show --vault-name "kv-${orgName}-pbimon-01" --name "secret-pbimon-server" --query "value" -o tsv
 
-if ($dacpacUploadedToSA) {# Construct the import command
+if ($dacpacUploadedToSA) {
+    # Construct the import command
     $importCommand = ("az sql db import -g $resourceGroupName -s $serverName -n $databaseName --storage-key-type StorageAccessKey --storage-key", $(az storage account keys list --account-name $storageAccountName --query "[0].value" -o tsv), "--storage-uri `"https://${storageAccountName}.blob.core.windows.net/bacpac/database.bacpac`" --admin-user $adminLogin --admin-password $serverPassword") -join ' '
     # Execute the import command
     Invoke-Expression $importCommand
-    Write-Host "Database import initiated. You can monitor the progress in the Azure portal." -ForegroundColor Yellow
+    $dbImageDeployed = $true
+    Write-Host "Database import is finished sucessfully" -ForegroundColor Green
 } else {
     Write-Host "Database import step is skipped since dacpac was not uploaded to the Storage Account." -ForegroundColor Red
+    $dbImageDeployed = $false
 }
 
 # Path to the ADF template and parameters files

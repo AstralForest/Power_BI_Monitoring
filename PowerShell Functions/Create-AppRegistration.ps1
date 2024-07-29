@@ -12,6 +12,8 @@ $app = az ad app create --display-name $appName --required-resource-accesses $ma
 if ($app.appId -eq $null -or -not $app) {
     Write-Host "Failed to create app registration" -ForegroundColor Red
     exit 1
+} else {
+    Write-Host "App Registration has been provisioned" -ForegroundColor Green
 }
 
 # Generate a client secret
@@ -21,6 +23,8 @@ $clientSecret = az ad app credential reset --id $app.appId --query "password" -o
 if (-not $clientSecret) {
     Write-Host "Failed to generate client secret" -ForegroundColor Red
     exit 1
+}else {
+    Write-Host "Secret has been generated" -ForegroundColor Green
 }
 
 # Create the service principal
@@ -30,18 +34,14 @@ $sp = az ad sp create --id $app.appId | ConvertFrom-Json
 if ($sp.id -eq $null -or -not $sp) {
     Write-Host "Failed to create service principal" -ForegroundColor Red
     exit 1
+}else {
+    Write-Host "Service Principal has been added to app" -ForegroundColor Green
 }
 
 # Output app details
 $clientId = $app.appId
 $tenantId = az account show --query "tenantId" -o tsv
 $spObjectId = $sp.id
-
-Write-Host "App registration created successfully"
-Write-Host "Client ID: $clientId"
-Write-Host "Client Secret: $clientSecret"
-Write-Host "Tenant ID: $tenantId"
-Write-Host "Service Principal Object ID: $spObjectId"
 
 # Return the details as an object
 $details = [PSCustomObject]@{
