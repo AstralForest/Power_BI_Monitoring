@@ -48,8 +48,9 @@ function Output-AllStatuses {
     Output-ComponentStatus -componentName "Security Group Provisioned" -componentValue $sgProvisioned
     Output-ComponentStatus -componentName "App Registration Added to Security Group" -componentValue $appRegAddedToSg
     Output-ComponentStatus -componentName "Bicep Deployed" -componentValue $bicepDeployed
-    Output-ComponentStatus -componentName "ADF Deployed" -componentValue $adfDeployed
+    Output-ComponentStatus -componentName "Dacpac uploaded to Storage Account" -componentValue $dacpacUploadedToSA
     Output-ComponentStatus -componentName "Database Image Deployed" -componentValue $dbImageDeployed
+    Output-ComponentStatus -componentName "ADF Deployed" -componentValue $adfDeployed
     Output-ComponentStatus -componentName "Workspace Created" -componentValue $workspaceCreated
     Output-ComponentStatus -componentName "PBIX Deployed" -componentValue $pbixDeployed
     Output-ComponentStatus -componentName "Connection String Changed" -componentValue $connStrChanged
@@ -60,6 +61,7 @@ $appRegProvisioned = $false
 $sgProvisioned = $false
 $appRegAddedToSg = $false
 $bicepDeployed = $false
+$dacpacUploadedToSA = $false
 $adfDeployed = $false
 $dbImageDeployed = $false
 $workspaceCreated = $false
@@ -152,7 +154,7 @@ if ($appRegProvisioned -and $sgProvisioned) {
     az ad group member add --group $securityGroup --member-id $servicePrincipalId
 
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "Service principal added to the security group successfully." -ForegroundColor Red
+        Write-Host "It was not possible to add Service Principal to Security Group." -ForegroundColor Red
         $appRegAddedToSg = $false
     } else {
         Write-Host "Service principal added to the security group successfully." -ForegroundColor Green
@@ -188,18 +190,27 @@ az deployment group create --resource-group $resourceGroupName --template-file $
     server_admin_mail=$serverAdminMail 
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "Deployment failed." -ForegroundColor Red
+    Write-Host "Environment provisioning failed." -ForegroundColor Red
     $bicepDeployed = $false
+    Output-AllStatuses
+    exit 1
 } else {
     Write-Host "Environment provisioning completed successfully." -ForegroundColor Green
     $bicepDeployed = $true
 }
 
-
 # Upload the .bacpac file to the storage account
 $storageAccountName = "st${orgName}pbimon01"
 Write-Host "Uploading .bacpac file to the storage account '$storageAccountName'..."
 az storage blob upload --account-name $storageAccountName --container-name bacpac --name database.bacpac --type block --file $bacpacFile --auth-mode login --overwrite true
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "DACPAC was not uploaded to Storage Account." -ForegroundColor Red
+    $dacpacUploadedToSA = $false
+} else {
+    Write-Host "DACPAC was successfully imported to Storage Account." -ForegroundColor Green
+    $dacpacUploadedToSA = $true
+}
 
 Write-Host "Importing database into the SQL Server..."
 $serverName = "server-${orgName}-pbimon-01"
@@ -209,32 +220,43 @@ $kvName = "kv-${orgName}-pbimon-01"
 $adminLogin = "login_server_pbimon"
 $serverPassword = az keyvault secret show --vault-name "kv-${orgName}-pbimon-01" --name "secret-pbimon-server" --query "value" -o tsv
 
-# Construct the import command
-$importCommand = ("az sql db import -g $resourceGroupName -s $serverName -n $databaseName --storage-key-type StorageAccessKey --storage-key", $(az storage account keys list --account-name $storageAccountName --query "[0].value" -o tsv), "--storage-uri `"https://${storageAccountName}.blob.core.windows.net/bacpac/database.bacpac`" --admin-user $adminLogin --admin-password $serverPassword") -join ' '
-
-# Execute the import command
-Invoke-Expression $importCommand
-
-Write-Host "Database import initiated. You can monitor the progress in the Azure portal."
+if ($dacpacUploadedToSA) {# Construct the import command
+    $importCommand = ("az sql db import -g $resourceGroupName -s $serverName -n $databaseName --storage-key-type StorageAccessKey --storage-key", $(az storage account keys list --account-name $storageAccountName --query "[0].value" -o tsv), "--storage-uri `"https://${storageAccountName}.blob.core.windows.net/bacpac/database.bacpac`" --admin-user $adminLogin --admin-password $serverPassword") -join ' '
+    # Execute the import command
+    Invoke-Expression $importCommand
+    Write-Host "Database import initiated. You can monitor the progress in the Azure portal." -ForegroundColor Yellow
+} else {
+    Write-Host "Database import step is skipped since dacpac was not uploaded to the Storage Account." -ForegroundColor Red
+}
 
 # Path to the ADF template and parameters files
 $adfTemplateFile = "PBI Monitoring Published ADF/ARMTemplateForFactory.json"
 $adfParametersFile = "PBI Monitoring Published ADF/ARMTemplateParametersForFactory.json"
 
-# Deploy the ADF template using Azure CLI
-Write-Host "Deploying ADF template..."
-az deployment group create --resource-group $resourceGroupName --template-file $adfTemplateFile `
-    --parameters $adfParametersFile `
-    --parameters factoryName=$dataFactoryName `
-                ls_kv_properties_typeProperties_baseUrl="https://$kvName.vault.azure.net/" `
-                default_properties_token_url_value="https://login.microsoftonline.com/$tenantId/oauth2/token" `
-                default_properties_kv_app_secret_url_value="https://$kvName.vault.azure.net/secrets/secret-pbimon-app-reg-secret/?api-version=7.0" `
-                default_properties_app_client_id_value=$clientId
+if ($bicepDeployed -and $dacpacUploadedToSA) {
+    # Deploy the ADF template using Azure CLI
+    Write-Host "Deploying ADF template..."
+    az deployment group create --resource-group $resourceGroupName --template-file $adfTemplateFile `
+        --parameters $adfParametersFile `
+        --parameters factoryName=$dataFactoryName `
+                    ls_kv_properties_typeProperties_baseUrl="https://$kvName.vault.azure.net/" `
+                    default_properties_token_url_value="https://login.microsoftonline.com/$tenantId/oauth2/token" `
+                    default_properties_kv_app_secret_url_value="https://$kvName.vault.azure.net/secrets/secret-pbimon-app-reg-secret/?api-version=7.0" `
+                    default_properties_app_client_id_value=$clientId
+    
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "ADF deployment failed." -ForegroundColor Red
+        $adfDeployed = $false
+    } else {
+        Write-Host "ADF deployment completed successfully." -ForegroundColor Green
+        $adfDeployed = $true
+    }
+}
 
-Write-Host "ADF deployment completed successfully."
+
 
 Write-Host "Deploying PBI Report..."
-$pbixDeploymentStatus = & ".\PowerShell Functions\Deploy-PBI-Report.ps1" -serverName $serverName -databaseName $databaseName
+& ".\PowerShell Functions\Deploy-PBI-Report.ps1" -serverName $serverName -databaseName $databaseName
 
 # Write the ADF instance name, resource group name, and subscription ID to a configuration file
 $configFilePath = "adf_config.json"
