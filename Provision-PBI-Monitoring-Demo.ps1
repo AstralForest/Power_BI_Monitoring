@@ -71,7 +71,6 @@ $connStrChanged = $false
 # Ensure Azure CLI is installed
 if (-not (Get-Command az -ErrorAction SilentlyContinue)) {
     Write-Host "Azure CLI is not installed. Please install it from https://docs.microsoft.com/en-us/cli/azure/install-azure-cli and then re-run this script."
-    Output-AllStatuses
     exit 1
 }
 # Check if the MicrosoftPowerBIMgmt module is installed
@@ -82,7 +81,6 @@ if (-not (Get-Module -ListAvailable -Name MicrosoftPowerBIMgmt)) {
         Write-Host "MicrosoftPowerBIMgmt module installed successfully."
     } catch {
         Write-Host "Failed to install MicrosoftPowerBIMgmt module. Please check your permissions or internet connection."
-        Output-AllStatuses
         exit 1
     }
 }
@@ -109,7 +107,7 @@ $subscriptionId = az account show --query id --output tsv
 $location = Get-Location
 
 # Create the resource group using Azure CLI
-Write-Host "Creating resource group '$resourceGroupName' in location '$location' under subscription '$subscriptionId'..."
+Write-Host "Creating resource group '$resourceGroupName' in location '$location' under subscription '$subscriptionId'..." -ForegroundColor Yellow
 az group create -l $location -n $resourceGroupName --subscription $subscriptionId > $null
 
 # Check if the resource group was created successfully
@@ -127,7 +125,7 @@ if (-not $resourceGroup) {
 
 
 # Call the script to create an app registration
-Write-Host "Creating app registration..."
+Write-Host "Creating app registration..." -ForegroundColor Yellow
 $appRegistrationDetails = & ".\PowerShell Functions\Create-AppRegistration.ps1" -orgName $orgName
 
 if (-not $appRegistrationDetails) {
@@ -138,7 +136,7 @@ if (-not $appRegistrationDetails) {
 }
 
 if ($appRegProvisioned) {
-    Write-Host "Creating security group..."
+    Write-Host "Creating security group..." -ForegroundColor Yellow
     $securityGroup = & ".\PowerShell Functions\Create-SecurityGroup.ps1" -orgName $orgName
 
     if (-not $securityGroup) {
@@ -153,7 +151,7 @@ if ($appRegProvisioned) {
 if ($appRegProvisioned -and $sgProvisioned) {
     # Add the service principal to the security group
     $servicePrincipalId = $appRegistrationDetails.SPObjectId
-    Write-Host "Adding service principal with ID '$servicePrincipalId' to the security group '$securityGroupName'..."
+    Write-Host "Adding service principal with ID '$servicePrincipalId' to the security group '$securityGroupName'..." -ForegroundColor Yellow
     az ad group member add --group $securityGroup --member-id $servicePrincipalId
 
     if ($LASTEXITCODE -ne 0) {
@@ -183,7 +181,7 @@ $clientId = $appRegistrationDetails.ClientId
 $clientSecret = $appRegistrationDetails.ClientSecret
 
 # Deploy the Bicep file using Azure CLI with individual parameters
-Write-Host "Deploying Bicep template..."
+Write-Host "Deploying Bicep template..."-ForegroundColor Yellow
 az deployment group create --resource-group $resourceGroupName --template-file $bicepFile --parameters `
     instance="01" `
     client_name=$orgName `
@@ -217,7 +215,7 @@ if ($LASTEXITCODE -ne 0) {
     $dacpacUploadedToSA = $true
 }
 
-Write-Host "Importing database into the SQL Server..."
+Write-Host "Importing database into the SQL Server..." -ForegroundColor Yellow
 $serverName = "server-${orgName}-pbimon-01"
 $databaseName = "db-${orgName}-pbimon-01"
 $dataFactoryName = "adf-${orgName}-pbimon-01"
@@ -243,7 +241,7 @@ $adfParametersFile = "PBI Monitoring Published ADF/ARMTemplateParametersForFacto
 
 if ($bicepDeployed -and $dacpacUploadedToSA) {
     # Deploy the ADF template using Azure CLI
-    Write-Host "Deploying ADF template..."
+    Write-Host "Deploying ADF template..." -ForegroundColor Yellow
     az deployment group create --resource-group $resourceGroupName --template-file $adfTemplateFile `
         --parameters $adfParametersFile `
         --parameters factoryName=$dataFactoryName `
@@ -263,7 +261,7 @@ if ($bicepDeployed -and $dacpacUploadedToSA) {
 
 
 
-Write-Host "Deploying PBI Report..."
+Write-Host "Deploying PBI Report..." -ForegroundColor Yellow
 & ".\PowerShell Functions\Deploy-PBI-Report.ps1" -serverName $serverName -databaseName $databaseName
 
 # Write the ADF instance name, resource group name, and subscription ID to a configuration file
@@ -279,6 +277,6 @@ $config = @{
 # Convert the config object to JSON and write it to a file
 $config | ConvertTo-Json | Out-File -FilePath $configFilePath -Force
 
-Write-Host "ADF instance name, resource group name, and subscription ID written to config file: $configFilePath"
+Write-Host "ADF instance name, resource group name, and subscription ID written to config file: $configFilePath" -ForegroundColor Yellow
 
 Output-AllStatuses
