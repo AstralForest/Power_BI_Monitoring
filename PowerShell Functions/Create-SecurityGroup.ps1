@@ -8,11 +8,8 @@ $securityGroup = az ad group create --display-name $securityGroupName --mail-nic
 
 # Check if the security group was created successfully
 if (-not $securityGroup) {
-    Write-Host "Failed to create the security group '$securityGroupName'. Exiting."
+    Write-Host "Failed to create the security group '$securityGroupName'. Exiting." -ForegroundColor Red
     exit 1
 }
-
-Write-Host "Security group '$securityGroupName' created successfully with ID: $securityGroup"
-
 
 return $securityGroup

@@ -9,13 +9,28 @@ $appName = "appreg-$orgName-pbi-mon-demo"
 Write-Host "Creating app registration with name: $appName"
 $app = az ad app create --display-name $appName --required-resource-accesses $manifestFile | ConvertFrom-Json
 
+if ($app.appId -eq $null -or -not $app) {
+    Write-Host "Failed to create app registration" -ForegroundColor Red
+    exit 1
+}
+
 # Generate a client secret
 Write-Host "Generating client secret"
 $clientSecret = az ad app credential reset --id $app.appId --query "password" -o tsv
 
+if (-not $clientSecret) {
+    Write-Host "Failed to generate client secret" -ForegroundColor Red
+    exit 1
+}
+
 # Create the service principal
 Write-Host "Creating service principal for app"
 $sp = az ad sp create --id $app.appId | ConvertFrom-Json
+
+if ($sp.id -eq $null -or -not $sp) {
+    Write-Host "Failed to create service principal" -ForegroundColor Red
+    exit 1
+}
 
 # Output app details
 $clientId = $app.appId
