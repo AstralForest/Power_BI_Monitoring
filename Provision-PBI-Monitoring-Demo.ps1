@@ -125,7 +125,6 @@ if (-not $resourceGroup) {
 
 
 # Call the script to create an app registration
-Write-Host "Creating app registration..." -ForegroundColor Yellow
 $appRegistrationDetails = & ".\PowerShell Functions\Create-AppRegistration.ps1" -orgName $orgName
 
 if (-not $appRegistrationDetails) {
@@ -248,7 +247,7 @@ if ($bicepDeployed -and $dacpacUploadedToSA) {
                     ls_kv_properties_typeProperties_baseUrl="https://$kvName.vault.azure.net/" `
                     default_properties_token_url_value="https://login.microsoftonline.com/$tenantId/oauth2/token" `
                     default_properties_kv_app_secret_url_value="https://$kvName.vault.azure.net/secrets/secret-pbimon-app-reg-secret/?api-version=7.0" `
-                    default_properties_app_client_id_value=$clientId
+                    default_properties_app_client_id_value=$clientId > $null
     
     if ($LASTEXITCODE -ne 0) {
         Write-Host "ADF deployment failed." -ForegroundColor Red
@@ -263,6 +262,18 @@ if ($bicepDeployed -and $dacpacUploadedToSA) {
 
 Write-Host "Deploying PBI Report..." -ForegroundColor Yellow
 & ".\PowerShell Functions\Deploy-PBI-Report.ps1" -serverName $serverName -databaseName $databaseName
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Power BI Report wasn't fully deployed. Check your privileges." -ForegroundColor Red
+    $workspaceCreated = $false
+    $pbixDeployed = $false
+    $connStrChanged = $false
+} else {
+    Write-Host "Power BI Report has been deployed to 'PBI_Demo_Workspace' workspace." -ForegroundColor Green
+    $workspaceCreated = $true
+    $pbixDeployed = $true
+    $connStrChanged = $true
+}
 
 # Write the ADF instance name, resource group name, and subscription ID to a configuration file
 $configFilePath = "adf_config.json"

@@ -6,7 +6,7 @@ $manifestFile = Join-Path -Path $PSScriptRoot -ChildPath "manifest.json"
 
 # Create the app registration
 $appName = "appreg-$orgName-pbi-mon-demo"
-Write-Host "Creating app registration with name: $appName"
+Write-Host "Creating app registration with name: $appName" -ForegroundColor Yellow
 $app = az ad app create --display-name $appName --required-resource-accesses $manifestFile | ConvertFrom-Json
 
 if ($app.appId -eq $null -or -not $app) {
@@ -17,7 +17,7 @@ if ($app.appId -eq $null -or -not $app) {
 }
 
 # Generate a client secret
-Write-Host "Generating client secret"
+Write-Host "Generating client secret" -ForegroundColor Yellow
 $clientSecret = az ad app credential reset --id $app.appId --query "password" -o tsv
 
 if (-not $clientSecret) {
@@ -28,7 +28,7 @@ if (-not $clientSecret) {
 }
 
 # Create the service principal
-Write-Host "Creating service principal for app"
+Write-Host "Creating service principal for app" -ForegroundColor Yellow
 $sp = az ad sp create --id $app.appId | ConvertFrom-Json
 
 if ($sp.id -eq $null -or -not $sp) {
