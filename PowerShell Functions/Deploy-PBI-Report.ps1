@@ -57,7 +57,7 @@ try {
 
     Invoke-PowerBIRestMethod -Method Post `
             -url "https://api.powerbi.com/v1.0/myorg/groups/$workspaceId/datasets/$($dataset.Id)/Default.UpdateDatasources" `
-            -Body $datasourceConnectionDetailsJson `
+            -Body $datasourceConnectionDetailsJson > $null
 
     Write-Output "Report and Dataset imported and parameters updated successfully."
 } catch {

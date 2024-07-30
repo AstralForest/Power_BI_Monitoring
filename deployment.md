@@ -4,7 +4,7 @@
 - Application Developer & Groups Administrator roles
 - Power BI Tenant Administrator role
 - [GitHub account](https://github.com/join)
-- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
+- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) (Version >2.62)
 > NOTE: Installation of **Azure CLI** might require you to restart your machine
 
 # Deployment overview
